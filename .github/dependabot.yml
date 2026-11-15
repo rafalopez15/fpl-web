@@ -32,3 +32,8 @@ updates:
       npm:
         patterns: ["*"]
         update-types: [minor, patch]
+    # typescript-eslint crashes on TypeScript 7; drop this once it doesn't:
+    # https://github.com/typescript-eslint/typescript-eslint/issues/10940
+    ignore:
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
