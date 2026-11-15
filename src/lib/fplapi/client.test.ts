@@ -16,6 +16,7 @@ describe("fplapi", () => {
 
     const request = fetch.mock.calls[0][0] as Request;
     expect(request.url).toBe("https://api.example/api/events");
+    expect(request.headers.get("User-Agent")).toBe("fpl-social-web");
   });
 
   it("fails clearly without FPLAPI_URL", () => {
