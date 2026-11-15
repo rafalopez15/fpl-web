@@ -110,3 +110,88 @@ a {
   align-items: center;
   gap: 1.25rem;
 }
+
+.notice {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin: 0.5rem 0 1rem;
+}
+
+.stepper a {
+  padding: 0.5rem 0;
+  text-decoration: none;
+}
+
+.stepper a[rel="next"] {
+  justify-self: end;
+}
+
+.stepper-current {
+  font-weight: 600;
+}
+
+.standings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.standing {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.standing p {
+  margin: 0;
+}
+
+.rank {
+  color: var(--secondary-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.team {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.moves {
+  margin-top: 0.25rem;
+  font-size: 0.9375rem;
+  overflow-wrap: anywhere;
+}
+
+.chip {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.0625rem 0.5rem;
+  border-radius: 999px;
+  background: var(--your-row);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: 0.125rem;
+}
+
+.placeholder .bar {
+  display: block;
+  height: 0.875rem;
+  border-radius: 4px;
+  background: var(--surface);
+  margin: 0.25rem 0 0.5rem;
+}
+
+.placeholder .bar.short {
+  width: 60%;
+}
