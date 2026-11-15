@@ -103,6 +103,28 @@ describe("toMarkdown", () => {
     expect(markdown).toContain("No coverage report from `main`");
   });
 
+  it("says so when main had nothing to measure", () => {
+    const empty = { pct: "Unknown", total: 0 };
+    const baseline = {
+      total: {
+        statements: empty,
+        branches: empty,
+        functions: empty,
+        lines: empty,
+      },
+    };
+    const markdown = toMarkdown({
+      summary: { total: total(100) },
+      files: {},
+      thresholds,
+      baseline,
+    });
+    expect(markdown).toContain(
+      "`main` had nothing to measure. · CI fails under 80%",
+    );
+    expect(markdown).not.toContain("no change");
+  });
+
   it("lists changed files with gaps, and collapses covered ones", () => {
     const files = {
       "src/lib/a.ts": { pct: 50, missing: ["3–4"] },
