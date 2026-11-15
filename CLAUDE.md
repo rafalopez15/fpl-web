@@ -39,6 +39,7 @@ Run all of them before pushing: each is a required check.
 - **Data loading and formatting live in `src/lib/`**, as plain functions with Vitest tests. Components call them; they never call `fetch` themselves.
 - **Tests sit next to their code** (`league-id.ts` and `league-id.test.ts`), not in a `tests/` folder like fplAPI's.
 - **Only fplAPI.** Never read Supabase or FPL directly.
+- **`src/lib/fplapi/schema.d.ts` is generated** from fplAPI's spec: run `npm run generate:api`, never edit it by hand. A daily workflow opens an issue when it's stale.
 - **Fix ESLint warnings rather than silencing them.** No `eslint-disable` without a reason on the same line.
 - **Comments:** short. Say why, not what; no ticket numbers or history.
 - **Dependencies are pinned exactly** (no `^`). Dependabot updates them weekly.

@@ -11,7 +11,7 @@ export default defineConfig({
       provider: "v8",
       // Pages are left out: async Server Components can't be unit tested.
       include: ["src/lib/**/*.ts"],
-      exclude: ["src/**/*.test.ts"],
+      exclude: ["src/**/*.test.ts", "src/**/*.d.ts"],
       reporter: ["text", "json-summary", "json"],
       thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },
     },
