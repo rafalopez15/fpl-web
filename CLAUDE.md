@@ -25,6 +25,14 @@ npm run build          # what Vercel runs; catches errors dev mode lets through
 
 Run all of them before pushing: each is a required check.
 
+## Next.js version
+
+**Next.js 16 with React 19**, exact versions in `package.json`. Patterns from older versions are often wrong here. Before writing Next.js code, read the guide for that API in `node_modules/next/dist/docs/` (the docs for the installed version).
+
+- **Cache Components is on** (`cacheComponents`, `partialPrefetching` in `next.config.ts`). Exporting `revalidate`, `dynamic` or `fetchCache` from a route is an error. Cache with `"use cache"` plus `cacheLife()`, and wrap request-time work (`params`, uncached data) in `<Suspense>`.
+- `params` and `searchParams` are Promises. Type pages with the generated `PageProps<"/route">` and `LayoutProps<"/route">`.
+- A request-time `notFound()` streams the not-found UI with status 200 and `noindex` to browsers. Link-preview bots (WhatsApp, iMessage, X) get a real 404, since Next waits for `generateMetadata` for them.
+
 ## Code
 
 - **Server Components by default.** Add `"use client"` only to a component that needs interaction, and keep it as small as possible.
