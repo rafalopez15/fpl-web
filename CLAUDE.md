@@ -37,6 +37,7 @@ Run all of them before pushing: each is a required check.
 
 - **Server Components by default.** Add `"use client"` only to a component that needs interaction, and keep it as small as possible.
 - **Data loading and formatting live in `src/lib/`**, as plain functions with Vitest tests. Components call them; they never call `fetch` themselves.
+- **Tests sit next to their code** (`league-id.ts` and `league-id.test.ts`), not in a `tests/` folder like fplAPI's.
 - **Only fplAPI.** Never read Supabase or FPL directly.
 - **Fix ESLint warnings rather than silencing them.** No `eslint-disable` without a reason on the same line.
 - **Comments:** short. Say why, not what; no ticket numbers or history.
