@@ -47,6 +47,6 @@ Pushing to `main` deploys production; every other branch gets a preview.
 
 ## Updating dependencies
 
-Dependabot opens PRs weekly for npm packages and GitHub Actions, a week after each release. Minor and patch updates come grouped; each major update gets its own PR, except that Next.js and React updates always come together with their related packages.
+Dependabot opens PRs weekly for npm packages and GitHub Actions, a week after each release. Minor and patch updates come grouped, and each major update gets its own PR. Next.js and React are the exception: their updates, major ones included, always come together in one PR.
 
 Gitleaks isn't covered: bump `GITLEAKS_VERSION` and `GITLEAKS_SHA256` in `.github/workflows/gitleaks.yml` together, from the release's checksums file.
