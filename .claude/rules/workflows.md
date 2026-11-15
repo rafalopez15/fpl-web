@@ -13,6 +13,7 @@ paths:
 - `ci.yml`: Lint, Format, Type check, Tests and Build, then one PR comment found by the `<!-- ci-report -->` marker. Only the comment job has `pull-requests: write`. Each check job uploads a `ci-summary-*` artifact; the scripts in `.github/scripts/` write them.
 - **The ruleset requires each job by its `name:`** (Lint, Format, Type check, Tests, Build, Gitleaks, Smoke test). Renaming a job blocks every PR until the ruleset is updated.
 - `smoke-test.yml` runs on Vercel's `vercel.deployment.success` dispatch and posts a **Smoke test** status. It runs from `main`'s copy only, so changes to it take effect after merge. It needs `repository_dispatch` events on in Vercel's Git settings, and fails if Vercel Authentication is turned on for previews.
+- `api-client.yml` runs daily and by hand, never on PRs: it regenerates the fplAPI client from production's spec and opens or comments on one "fplAPI client is out of date" issue when the committed file differs. Scheduled workflows run from `main`'s copy only.
 - Node comes from `engines.node` in `package.json` (`node-version-file`), the same pin Vercel uses. Don't add a second one.
 - Find an issue by exact title from `gh issue list` without `--search`: the search index can miss a new issue.
 
