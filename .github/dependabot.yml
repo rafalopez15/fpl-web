@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # Waits a week after a release, so a compromised one is usually pulled first.
+    cooldown:
+      default-days: 7
+    # Minor and patch updates in one PR; each major update gets its own.
+    groups:
+      actions:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    # Next.js and React come in one PR at every level, since a Next bump can need React's.
+    groups:
+      next-react:
+        patterns:
+          - next
+          - eslint-config-next
+          - react
+          - react-dom
+          - "@types/react"
+          - "@types/react-dom"
+      npm:
+        patterns: ["*"]
+        update-types: [minor, patch]
