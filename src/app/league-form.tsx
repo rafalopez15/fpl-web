@@ -30,7 +30,7 @@ export function LeagueForm() {
           aria-describedby={describedBy}
           aria-invalid={state.error ? true : undefined}
         />
-        <button type="submit" disabled={pending}>
+        <button type="submit" className="button" disabled={pending}>
           {pending ? "Opening…" : "Open"}
         </button>
       </div>
