@@ -97,9 +97,13 @@ export function toMarkdown({ summary, files, thresholds, baseline, changed }) {
     `| ${METRICS.map((m) => `${total[m].pct.toFixed(1)}%`).join(" | ")} |`,
     "",
   ];
-  let note = baseline
-    ? `Lines against \`main\`: ${change(total.lines.pct, baseline.total.lines.pct)}`
-    : "No coverage report from `main` to compare against.";
+  let note;
+  if (!baseline) note = "No coverage report from `main` to compare against.";
+  // Its pct is "Unknown" when main had nothing under src/lib.
+  else if (baseline.total.lines.total === 0)
+    note = "`main` had nothing to measure.";
+  else
+    note = `Lines against \`main\`: ${change(total.lines.pct, baseline.total.lines.pct)}`;
   if (thresholds.lines !== undefined)
     note += ` · CI fails under ${thresholds.lines}%`;
   lines.push(note);
