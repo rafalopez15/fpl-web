@@ -20,7 +20,6 @@ export function LeagueForm() {
           id="league"
           name="league"
           type="text"
-          inputMode="url"
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}

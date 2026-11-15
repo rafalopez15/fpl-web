@@ -1,7 +1,5 @@
-/* Colors come from src/lib/theme.ts, set as variables on <html> by the root layout. */
-:root {
-  color-scheme: dark;
-}
+/* Colors come from src/lib/theme.ts, set as variables on <html> by the root layout,
+   which also sets color-scheme. */
 
 * {
   box-sizing: border-box;
