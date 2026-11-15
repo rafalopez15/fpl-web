@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   MAX_LEAGUE_ID,
   parseLeagueId,
+  openLeagueTarget,
   parseLeagueInput,
 } from "@/lib/league-id";
 
@@ -56,11 +57,24 @@ describe("parseLeagueInput", () => {
     ],
     ["a link ending at the id", "fantasy.premierleague.com/leagues/314"],
     [
+      "a path that only starts like a head-to-head one",
+      "fantasy.premierleague.com/leagues/314/standings/hx",
+    ],
+  ])("reads %s", (_, input) => {
+    expect(parseLeagueInput(input)).toEqual({ kind: "league", id: 314 });
+  });
+
+  it.each([
+    [
       "a head-to-head link",
       "fantasy.premierleague.com/leagues/314/standings/h",
     ],
-  ])("reads %s", (_, input) => {
-    expect(parseLeagueInput(input)).toBe(314);
+    [
+      "a head-to-head link with a query",
+      "https://fantasy.premierleague.com/leagues/314/standings/h?phase=1",
+    ],
+  ])("tells %s apart", (_, input) => {
+    expect(parseLeagueInput(input)).toEqual({ kind: "head-to-head" });
   });
 
   it.each([
@@ -83,6 +97,30 @@ describe("parseLeagueInput", () => {
     ],
     ["something that isn't a URL", "https://"],
   ])("rejects %s", (_, input) => {
-    expect(parseLeagueInput(input)).toBeNull();
+    expect(parseLeagueInput(input)).toEqual({ kind: "invalid" });
+  });
+});
+
+describe("openLeagueTarget", () => {
+  it("opens the league's page", () => {
+    expect(
+      openLeagueTarget("fantasy.premierleague.com/leagues/314/standings/c"),
+    ).toEqual({
+      href: "/leagues/314",
+    });
+  });
+
+  it("says head-to-head leagues aren't supported", () => {
+    expect(
+      openLeagueTarget("fantasy.premierleague.com/leagues/314/standings/h"),
+    ).toEqual({
+      error: "Head-to-head leagues aren't supported yet.",
+    });
+  });
+
+  it("says when the input isn't a league", () => {
+    expect(openLeagueTarget("my league")).toEqual({
+      error: "That isn't an FPL league link or number.",
+    });
   });
 });
