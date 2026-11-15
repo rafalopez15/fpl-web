@@ -13,9 +13,10 @@ base="${base%/}"
 body=$(mktemp)
 trap 'rm -f "$body"' EXIT
 
-# Retries cover a cold start and a deployment whose alias is still settling.
+# Retries cover a cold start and a deployment whose alias is still settling. No
+# --location: Vercel's login page, where a protected deployment redirects, is Next.js too.
 fetch() {
-  curl --silent --show-error --location --retry 3 --retry-delay 5 --retry-all-errors \
+  curl --silent --show-error --retry 3 --retry-delay 5 --retry-all-errors \
     --max-time 20 --output "$body" --write-out '%{http_code}' "$base$1"
 }
 
@@ -33,7 +34,7 @@ check() {
   fi
 }
 
-# Rendered by Next.js, so a 200 from Vercel's error or login page doesn't pass.
-check / "<h1>FPL Social</h1>"
+# Every Next.js page loads assets from here; Vercel's error pages don't.
+check / "/_next/static/"
 
 exit $failed
