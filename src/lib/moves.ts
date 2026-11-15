@@ -21,30 +21,45 @@ function playerName(names: PlayerNames, id: number): string {
   return names[id] ?? "Unknown player";
 }
 
-// What a team did, e.g. "2 transfers (−4): Isak in for Watkins, Saka in for Palmer ·
-// Captain: Haaland (changed)". Empty when it made no transfers and kept its captain.
-export function describeMoves(team: TeamActivity, names: PlayerNames): string {
-  const parts: string[] = [];
+// Transfers listed before the rest go behind "and N more", so a Wildcard stays short.
+export const SHOWN_TRANSFERS = 3;
+
+export type Moves = {
+  // e.g. "2 transfers (−4): Isak in for Watkins, Saka in for Palmer"
+  transfers: string | null;
+  // Transfers past the first SHOWN_TRANSFERS, e.g. ["Raya in for Verbruggen"].
+  more: string[];
+  // e.g. "Captain: Haaland (changed)"
+  captain: string | null;
+};
+
+// What a team did. Every part is empty when it made no transfers and kept its captain.
+export function describeMoves(team: TeamActivity, names: PlayerNames): Moves {
   const count = team.transfers.length;
-  if (count > 0) {
-    const hit = team.transfers_cost > 0 ? ` (−${team.transfers_cost})` : "";
-    const list = team.transfers
-      .map(
-        (t) =>
-          `${playerName(names, t.element_in)} in for ${playerName(names, t.element_out)}`,
-      )
-      .join(", ");
-    parts.push(`${count} transfer${count === 1 ? "" : "s"}${hit}: ${list}`);
-  }
+  const swaps = team.transfers.map(
+    (t) =>
+      `${playerName(names, t.element_in)} in for ${playerName(names, t.element_out)}`,
+  );
+  const hit = team.transfers_cost > 0 ? ` (−${team.transfers_cost})` : "";
+  const transfers =
+    count === 0
+      ? null
+      : `${count} transfer${count === 1 ? "" : "s"}${hit}: ${swaps.slice(0, SHOWN_TRANSFERS).join(", ")}`;
   // Null means there's no earlier gameweek to compare with, so nothing to say.
-  if (team.captain_changed && team.captain != null) {
-    parts.push(`Captain: ${playerName(names, team.captain)} (changed)`);
-  }
-  return parts.join(" · ");
+  const captain =
+    team.captain_changed && team.captain != null
+      ? `Captain: ${playerName(names, team.captain)} (changed)`
+      : null;
+  return { transfers, more: swaps.slice(SHOWN_TRANSFERS), captain };
 }
 
-// Suggested wording, not decided yet: see the PR.
-export const ARRIVING = "Moves arriving within the hour";
+// The moves on one line, e.g. "1 transfer: Isak in for Watkins · Captain: Haaland
+// (changed)". With hidden transfers the captain gets its own line instead.
+export function movesLine(moves: Moves): string {
+  return [moves.transfers, moves.captain].filter(Boolean).join(" · ");
+}
+
+export const ARRIVING = "Moves are being fetched. Check back later.";
 export const NOT_PLAYING = "Joined after this gameweek";
 export const NO_MOVES = "No moves";
 
@@ -53,9 +68,9 @@ export type Row = {
   rank: number | null;
   name: string;
   chip: string | null;
-  // Null when there's no activity to show for the league at all.
-  moves: string | null;
-  quiet: boolean;
+  moves: Moves | null;
+  // Said instead of moves: no moves, still being fetched, or joined later.
+  note: string | null;
 };
 
 export type ActivityView = { pending: boolean; teams: TeamActivity[] } | null;
@@ -85,19 +100,16 @@ export function buildRows(
     !activity || (activity.pending && activity.teams.length === 0);
 
   return teams.map(({ entry, name, rank }) => {
-    const row = { entry, name, rank, chip: null };
-    if (nothingYet) return { ...row, moves: null, quiet: true };
+    const row = { entry, name, rank, chip: null, moves: null };
+    if (nothingYet) return { ...row, note: null };
     const team = byEntry.get(entry);
     if (!team) {
-      return {
-        ...row,
-        moves: activity.pending ? ARRIVING : NOT_PLAYING,
-        quiet: true,
-      };
+      return { ...row, note: activity.pending ? ARRIVING : NOT_PLAYING };
     }
     const chip = team.chip ? chipLabel(team.chip) : null;
     const moves = describeMoves(team, names);
-    if (!moves && !chip) return { ...row, moves: NO_MOVES, quiet: true };
-    return { ...row, chip, moves, quiet: false };
+    const quiet = !moves.transfers && !moves.captain;
+    if (quiet && !chip) return { ...row, note: NO_MOVES };
+    return { ...row, chip, moves: quiet ? null : moves, note: null };
   });
 }

@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { activityNotice, getActivity } from "@/lib/activity";
 import { gameweekPath } from "@/lib/gameweeks";
 import { resolveLeaguePage } from "@/lib/league-page";
-import { buildRows, type Row } from "@/lib/moves";
+import { buildRows, type Moves, movesLine, type Row } from "@/lib/moves";
 import { getPlayerNames } from "@/lib/players";
 import { shareDescription, shareTitle } from "@/lib/share";
 
@@ -109,13 +109,28 @@ function Standings({ rows }: { rows: Row[] }) {
               {row.name}
               {row.chip && <span className="chip">{row.chip}</span>}
             </p>
-            {row.moves && (
-              <p className={row.quiet ? "moves muted" : "moves"}>{row.moves}</p>
-            )}
+            {row.moves && <TeamMoves moves={row.moves} />}
+            {row.note && <p className="moves muted">{row.note}</p>}
           </div>
         </li>
       ))}
     </ol>
+  );
+}
+
+// Transfers past the first few open on a tap, with <details>: no JavaScript needed.
+function TeamMoves({ moves }: { moves: Moves }) {
+  if (moves.more.length === 0)
+    return <p className="moves">{movesLine(moves)}</p>;
+  return (
+    <div className="moves">
+      <p>{moves.transfers}</p>
+      <details className="more">
+        <summary>and {moves.more.length} more</summary>
+        <p>{moves.more.join(", ")}</p>
+      </details>
+      {moves.captain && <p>{moves.captain}</p>}
+    </div>
   );
 }
 

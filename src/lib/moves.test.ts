@@ -5,8 +5,10 @@ import {
   buildRows,
   chipLabel,
   describeMoves,
+  movesLine,
   NO_MOVES,
   NOT_PLAYING,
+  SHOWN_TRANSFERS,
   type TeamActivity,
 } from "@/lib/moves";
 
@@ -27,52 +29,66 @@ function team(overrides: Partial<TeamActivity> = {}): TeamActivity {
   };
 }
 
+const swap = (element_in: number, element_out: number) => ({
+  element_in,
+  element_out,
+});
+
 describe("describeMoves", () => {
   it("describes transfers with a hit and a captain change", () => {
     const moves = describeMoves(
       team({
-        transfers: [
-          { element_in: 1, element_out: 2 },
-          { element_in: 3, element_out: 4 },
-        ],
+        transfers: [swap(1, 2), swap(3, 4)],
         transfers_cost: 4,
         captain_changed: true,
       }),
       names,
     );
-    expect(moves).toBe(
+    expect(movesLine(moves)).toBe(
       "2 transfers (−4): Isak in for Watkins, Saka in for Palmer · Captain: Haaland (changed)",
     );
+    expect(moves.more).toEqual([]);
   });
 
   it("says one transfer without a hit", () => {
+    const moves = describeMoves(team({ transfers: [swap(1, 2)] }), names);
+    expect(movesLine(moves)).toBe("1 transfer: Isak in for Watkins");
+  });
+
+  it(`lists ${SHOWN_TRANSFERS} transfers and keeps the rest for "and N more"`, () => {
     const moves = describeMoves(
-      team({ transfers: [{ element_in: 1, element_out: 2 }] }),
+      team({
+        transfers: [swap(1, 2), swap(3, 4), swap(5, 1), swap(2, 3), swap(4, 5)],
+        chip: "wildcard",
+      }),
       names,
     );
-    expect(moves).toBe("1 transfer: Isak in for Watkins");
+    expect(moves.transfers).toBe(
+      "5 transfers: Isak in for Watkins, Saka in for Palmer, Haaland in for Isak",
+    );
+    expect(moves.more).toEqual([
+      "Watkins in for Saka",
+      "Palmer in for Haaland",
+    ]);
   });
 
   it("says only a captain change", () => {
-    expect(describeMoves(team({ captain_changed: true }), names)).toBe(
-      "Captain: Haaland (changed)",
-    );
+    const moves = describeMoves(team({ captain_changed: true }), names);
+    expect(movesLine(moves)).toBe("Captain: Haaland (changed)");
   });
 
   it("says nothing about the captain without an earlier gameweek to compare", () => {
-    expect(describeMoves(team({ captain_changed: null }), names)).toBe("");
+    const moves = describeMoves(team({ captain_changed: null }), names);
+    expect(moves).toEqual({ transfers: null, more: [], captain: null });
   });
 
   it("is empty for a team that did nothing", () => {
-    expect(describeMoves(team(), names)).toBe("");
+    expect(movesLine(describeMoves(team(), names))).toBe("");
   });
 
   it("names a player it doesn't know", () => {
-    const moves = describeMoves(
-      team({ transfers: [{ element_in: 99, element_out: 2 }] }),
-      names,
-    );
-    expect(moves).toBe("1 transfer: Unknown player in for Watkins");
+    const moves = describeMoves(team({ transfers: [swap(99, 2)] }), names);
+    expect(movesLine(moves)).toBe("1 transfer: Unknown player in for Watkins");
   });
 });
 
@@ -149,17 +165,14 @@ describe("buildRows", () => {
       },
       names,
     );
-    expect(rows[0]).toMatchObject({
-      moves: "1 transfer: Isak in for Watkins",
-      chip: null,
-      quiet: false,
-    });
+    expect(movesLine(rows[0].moves!)).toBe("1 transfer: Isak in for Watkins");
+    expect(rows[0]).toMatchObject({ chip: null, note: null });
     expect(rows[1]).toMatchObject({
-      moves: "",
       chip: "Bench Boost",
-      quiet: false,
+      moves: null,
+      note: null,
     });
-    expect(rows[2]).toMatchObject({ moves: NO_MOVES, quiet: true });
+    expect(rows[2]).toMatchObject({ moves: null, note: NO_MOVES });
   });
 
   it("says moves are arriving for teams missing while pending", () => {
@@ -168,8 +181,8 @@ describe("buildRows", () => {
       { pending: true, teams: [team({ entry: 10 })] },
       names,
     );
-    expect(rows[0].moves).toBe(NO_MOVES);
-    expect(rows[1]).toMatchObject({ moves: ARRIVING, quiet: true });
+    expect(rows[0].note).toBe(NO_MOVES);
+    expect(rows[1]).toMatchObject({ moves: null, note: ARRIVING });
   });
 
   it("says a team missing once nothing is pending joined later, not that it made no moves", () => {
@@ -178,16 +191,16 @@ describe("buildRows", () => {
       { pending: false, teams: [team({ entry: 10 })] },
       names,
     );
-    expect(rows[3]).toMatchObject({ moves: NOT_PLAYING, quiet: true });
+    expect(rows[3]).toMatchObject({ moves: null, note: NOT_PLAYING });
   });
 
   it("shows the standings alone while no team is done yet", () => {
     const rows = buildRows(league, { pending: true, teams: [] }, names);
-    expect(rows.every((r) => r.moves === null)).toBe(true);
+    expect(rows.every((r) => r.moves === null && r.note === null)).toBe(true);
   });
 
   it("shows the standings alone without activity", () => {
     const rows = buildRows(league, null, names);
-    expect(rows.every((r) => r.moves === null)).toBe(true);
+    expect(rows.every((r) => r.moves === null && r.note === null)).toBe(true);
   });
 });
