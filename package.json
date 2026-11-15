@@ -14,10 +14,12 @@
     "format:check": "prettier --check .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "generate:api": "openapi-typescript ${FPLAPI_URL:-https://fpl-api-six.vercel.app}/openapi.json -o src/lib/fplapi/schema.d.ts"
   },
   "dependencies": {
     "next": "16.4.6",
+    "openapi-fetch": "0.17.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
@@ -29,6 +31,7 @@
     "eslint": "10.15.0",
     "eslint-config-next": "16.4.6",
     "eslint-config-prettier": "10.1.8",
+    "openapi-typescript": "7.13.0",
     "prettier": "3.10.1",
     "typescript": "5.9.3",
     "vitest": "5.1.0"

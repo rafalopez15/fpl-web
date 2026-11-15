@@ -10,9 +10,42 @@ The web app for FPL Social: mini-league pages you can share with your league's g
 You need Node 26 (the version in `package.json`'s `engines`). With Homebrew: `brew install node`.
 
 ```bash
-npm ci        # installs exactly what package-lock.json lists
-npm run dev   # http://localhost:3000
+npm ci                        # installs exactly what package-lock.json lists
+cp .env.example .env.local    # points the app at production fplAPI
+npm run dev                   # http://localhost:3000
 ```
+
+## Environments
+
+The app calls fplAPI from its server only, at the base URL in `FPLAPI_URL` (without `/api`). The browser never calls fplAPI, so fplAPI needs no CORS setup for it.
+
+| Where       | `FPLAPI_URL`                                       |
+| ----------- | -------------------------------------------------- |
+| Production  | `https://fpl-api-six.vercel.app`, a Vercel env var |
+| PR previews | The same production API, Vercel's Preview env var  |
+| Local       | `.env.local`, copied from `.env.example`           |
+
+Previews are the staging environment: there's no separate one. They read real data from production fplAPI, which is safe while the app only reads public FPL data with no sign-in. Leagues opened on a preview count toward production's league tracking, which is fine at testing volume. There's no Supabase config until sign-in arrives.
+
+### Testing against an unmerged fplAPI change
+
+To point one web branch's previews at an fplAPI PR's preview:
+
+1. In Vercel, open the `fpl-web` project → Settings → Environment Variables, and add `FPLAPI_URL` for the **Preview** environment, limited to your web branch. Its value is the fplAPI PR's preview URL without `/api`, e.g. `https://fpl-api-git-<branch>-fpl-social.vercel.app`.
+2. Redeploy the web branch (push a commit, or Redeploy in Vercel). Other branches keep using production.
+3. If the web change needs the new API fields, regenerate the client from that preview: `FPLAPI_URL=<preview url> npm run generate:api`.
+4. After the fplAPI PR merges, run `npm run generate:api` again so the committed client comes from production, then delete the branch's variable in Vercel.
+
+## fplAPI client
+
+`src/lib/fplapi/schema.d.ts` holds TypeScript types generated from fplAPI's OpenAPI spec by [openapi-typescript](https://openapi-ts.dev/), and [openapi-fetch](https://openapi-ts.dev/openapi-fetch/) calls the API with them. Never edit the generated file by hand:
+
+```bash
+npm run generate:api                               # from production's spec
+FPLAPI_URL=<fplAPI base url> npm run generate:api  # from another fplAPI
+```
+
+A daily workflow (`api-client.yml`) regenerates it from production's spec and opens an "fplAPI client is out of date" issue, or comments on the open one, when the committed file differs. Run it by hand from the Actions tab.
 
 ## Commands
 
@@ -27,6 +60,7 @@ npm run dev   # http://localhost:3000
 | `npm run test:coverage` | Tests with coverage; fails under 80% on `src/lib`    |
 | `npm run build`         | Production build, as Vercel runs it                  |
 | `npm start`             | Serves the production build locally                  |
+| `npm run generate:api`  | Regenerates the fplAPI client from production's spec |
 
 ## Checks on every PR
 
@@ -48,5 +82,7 @@ Pushing to `main` deploys production; every other branch gets a preview.
 ## Updating dependencies
 
 Dependabot opens PRs weekly for npm packages and GitHub Actions, a week after each release. Minor and patch updates come grouped, and each major update gets its own PR. Next.js and React are the exception: their updates, major ones included, always come together in one PR.
+
+When Dependabot bumps `openapi-typescript`, run `npm run generate:api` on its branch and commit any change, or the daily client check will report a spec change that didn't happen.
 
 Gitleaks isn't covered: bump `GITLEAKS_VERSION` and `GITLEAKS_SHA256` in `.github/workflows/gitleaks.yml` together, from the release's checksums file.

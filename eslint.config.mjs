@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "coverage/**",
     "next-env.d.ts",
+    "src/lib/fplapi/schema.d.ts",
   ]),
 ]);
 

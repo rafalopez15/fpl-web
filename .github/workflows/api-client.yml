@@ -1,0 +1,54 @@
+name: fplAPI client
+
+# Daily, not on PRs, so an API release never fails an unrelated web PR.
+on:
+  schedule:
+    - cron: "30 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write # an issue when the client is stale
+
+jobs:
+  check:
+    name: Compare with production's spec
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SCHEMA: src/lib/fplapi/schema.d.ts
+      TITLE: fplAPI client is out of date
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+      - name: Regenerate from production's spec
+        run: npm run generate:api
+      - name: Open or comment on an issue when it differs
+        run: |
+          if git diff --quiet -- "$SCHEMA"; then
+            echo "The committed client matches production's spec"
+            exit 0
+          fi
+          git diff --stat -- "$SCHEMA"
+          # Whole lines, so a multi-byte character is never cut. 600 lines of at most ~105
+          # characters stay under GitHub's 65,536-character limit on a body.
+          diff=$(git diff -- "$SCHEMA" | head -n 600)
+          body=$(printf '%s\n\n%s\n\n<details><summary>The difference</summary>\n\n```diff\n%s\n```\n</details>\n' \
+            "Regenerating \`$SCHEMA\` from production fplAPI's spec no longer matches the committed file ($RUN_URL). Either the spec changed, or an \`openapi-typescript\` bump changed its output." \
+            "Run \`npm run generate:api\`, check the app against the changes, and commit them in a PR." \
+            "$diff")
+          # Not --search: its index can miss an issue opened moments ago.
+          issue=$(gh issue list --state open --limit 100 --json number,title \
+            --jq "map(select(.title == \"$TITLE\")) | .[0].number // empty")
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "$body"
+          else
+            gh issue create --title "$TITLE" --body "$body"
+          fi
