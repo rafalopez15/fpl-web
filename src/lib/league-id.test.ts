@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { MAX_LEAGUE_ID, parseLeagueId } from "@/lib/league-id";
+import {
+  MAX_LEAGUE_ID,
+  parseLeagueId,
+  parseLeagueInput,
+} from "@/lib/league-id";
 
 describe("parseLeagueId", () => {
   it("reads a league number", () => {
@@ -26,5 +30,59 @@ describe("parseLeagueId", () => {
     ["an empty string", ""],
   ])("rejects %s", (_, raw) => {
     expect(parseLeagueId(raw)).toBeNull();
+  });
+});
+
+describe("parseLeagueInput", () => {
+  it.each([
+    ["a number", "314"],
+    ["a number with spaces around it", "  314 "],
+    ["a link", "https://fantasy.premierleague.com/leagues/314/standings/c"],
+    [
+      "a link without https://",
+      "fantasy.premierleague.com/leagues/314/standings/c",
+    ],
+    [
+      "a link with www.",
+      "https://www.fantasy.premierleague.com/leagues/314/standings/c",
+    ],
+    [
+      "a link in capitals",
+      "HTTPS://FANTASY.PREMIERLEAGUE.COM/leagues/314/standings/c",
+    ],
+    [
+      "a link with a query",
+      "fantasy.premierleague.com/leagues/314/standings/c?phase=1",
+    ],
+    ["a link ending at the id", "fantasy.premierleague.com/leagues/314"],
+    [
+      "a head-to-head link",
+      "fantasy.premierleague.com/leagues/314/standings/h",
+    ],
+  ])("reads %s", (_, input) => {
+    expect(parseLeagueInput(input)).toBe(314);
+  });
+
+  it.each([
+    ["an empty field", ""],
+    ["words", "my league"],
+    ["a number out of range", "0"],
+    ["another site", "https://example.com/leagues/314/standings/c"],
+    [
+      "a lookalike site",
+      "https://fantasy.premierleague.com.example.com/leagues/314",
+    ],
+    ["a team link", "fantasy.premierleague.com/entry/314/event/11"],
+    [
+      "a link with letters in the id",
+      "fantasy.premierleague.com/leagues/314abc/standings/c",
+    ],
+    [
+      "an id too big for fplAPI",
+      "fantasy.premierleague.com/leagues/99999999999/standings/c",
+    ],
+    ["something that isn't a URL", "https://"],
+  ])("rejects %s", (_, input) => {
+    expect(parseLeagueInput(input)).toBeNull();
   });
 });
