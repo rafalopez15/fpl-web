@@ -1,3 +1,8 @@
+/* Colors come from src/lib/theme.ts, set as variables on <html> by the root layout. */
+:root {
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -5,6 +10,8 @@
 html,
 body {
   margin: 0;
+  background: var(--background);
+  color: var(--text);
   font-family:
     system-ui,
     -apple-system,
@@ -18,4 +25,23 @@ main {
   max-width: 40rem;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+p {
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+}
+
+.muted {
+  color: var(--secondary-text);
 }

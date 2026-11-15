@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { theme, themeVariables } from "@/lib/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -6,9 +7,14 @@ export const metadata: Metadata = {
   description: "See what your mini-league did this gameweek.",
 };
 
+export const viewport: Viewport = {
+  themeColor: theme.background,
+  colorScheme: "dark",
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en">
+    <html lang="en" style={themeVariables()}>
       <body>{children}</body>
     </html>
   );
