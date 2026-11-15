@@ -83,4 +83,6 @@ Pushing to `main` deploys production; every other branch gets a preview.
 
 Dependabot opens PRs weekly for npm packages and GitHub Actions, a week after each release. Minor and patch updates come grouped, and each major update gets its own PR. Next.js and React are the exception: their updates, major ones included, always come together in one PR.
 
+When Dependabot bumps `openapi-typescript`, run `npm run generate:api` on its branch and commit any change, or the daily client check will report a spec change that didn't happen.
+
 Gitleaks isn't covered: bump `GITLEAKS_VERSION` and `GITLEAKS_SHA256` in `.github/workflows/gitleaks.yml` together, from the release's checksums file.

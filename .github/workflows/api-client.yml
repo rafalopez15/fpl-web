@@ -37,10 +37,11 @@ jobs:
             exit 0
           fi
           git diff --stat -- "$SCHEMA"
-          # GitHub caps issue bodies at 65,536 characters.
-          diff=$(git diff -- "$SCHEMA" | head -c 50000)
+          # Whole lines, so a multi-byte character is never cut. 600 lines of at most ~105
+          # characters stay under GitHub's 65,536-character limit on a body.
+          diff=$(git diff -- "$SCHEMA" | head -n 600)
           body=$(printf '%s\n\n%s\n\n<details><summary>The difference</summary>\n\n```diff\n%s\n```\n</details>\n' \
-            "Production fplAPI's spec no longer matches \`$SCHEMA\` ($RUN_URL)." \
+            "Regenerating \`$SCHEMA\` from production fplAPI's spec no longer matches the committed file ($RUN_URL). Either the spec changed, or an \`openapi-typescript\` bump changed its output." \
             "Run \`npm run generate:api\`, check the app against the changes, and commit them in a PR." \
             "$diff")
           # Not --search: its index can miss an issue opened moments ago.
