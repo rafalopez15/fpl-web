@@ -1,12 +1,8 @@
 name: Smoke test
 
-# Requests every Vercel deployment once it's built, previews and production, and
-# reports the result on the deployed commit as a "Smoke test" status, so a broken
-# preview shows on its PR. CI's build runs on GitHub, so it can't see a Vercel
-# build that ships broken.
+# Requests each Vercel deployment and posts a "Smoke test" status on its commit.
 on:
-  # Sent by Vercel's GitHub integration. GitHub only runs it from main's copy of
-  # this file.
+  # Sent by Vercel; GitHub runs it from main's copy of this file only.
   repository_dispatch:
     types: [vercel.deployment.success]
   # By hand from the Actions tab, against any URL. Nothing is reported on a commit.
@@ -23,8 +19,7 @@ permissions:
 
 jobs:
   smoke-test:
-    # Not "Smoke test": GitHub files this run under main's latest commit, whatever
-    # was deployed, so the commit status below is the result that counts.
+    # The commit status below counts: GitHub files this run under main's latest commit.
     name: Request the deployment
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -45,9 +40,7 @@ jobs:
             -f description="Checking the $ENVIRONMENT deployment" > /dev/null
       - name: Request the deployment
         id: smoke
-        # A broken preview fails only its commit status, not this run, so it doesn't
-        # mark main's latest commit red. Production or a manual run failing fails the
-        # run. (Expression comparisons ignore case.)
+        # A broken preview fails only its status, so main's latest commit isn't marked red.
         continue-on-error: ${{ env.ENVIRONMENT == 'preview' }}
         run: |
           echo "Smoke testing the $ENVIRONMENT deployment at $URL"
@@ -66,9 +59,7 @@ jobs:
             -f context="Smoke test" -f target_url="$RUN_URL" \
             -f description="$description" > /dev/null
       - name: Open an issue when production fails
-        # GitHub emails a failed run to whoever started it, here Vercel's app, so
-        # without this nobody hears about it. One open issue at a time; later
-        # failures comment on it.
+        # GitHub emails the failure to Vercel's app, so open (or comment on) one issue.
         if: failure() && env.ENVIRONMENT == 'production'
         env:
           TITLE: Production smoke test failed

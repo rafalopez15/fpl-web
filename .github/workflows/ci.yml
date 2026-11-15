@@ -1,8 +1,6 @@
 name: CI
 
-# PRs run lint, formatting, type check, tests and build, then post one comment with
-# the summaries. Pushes to main run them again on the merged code. Other branch
-# pushes don't run CI until a PR is opened, so PR branches don't run everything twice.
+# Runs on PRs and pushes to main; other branches wait for a PR, so nothing runs twice.
 on:
   pull_request:
   push:
@@ -23,6 +21,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -48,6 +47,7 @@ jobs:
   format:
     name: Format
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -74,6 +74,7 @@ jobs:
   typecheck:
     name: Type check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -103,6 +104,7 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       actions: read # to download main's coverage report
@@ -124,8 +126,7 @@ jobs:
         run: node .github/scripts/summarize-tests.mjs test-results.json tests-summary.md
       - name: Get main's coverage and the PR's changed files
         if: always() && github.event_name == 'pull_request'
-        # Main's report is from its latest successful CI run. The changed files come
-        # from GitHub's API, so they don't depend on how much history was fetched.
+        # Main's report is from its latest successful run; changed files from the API, not git.
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
@@ -170,6 +171,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -199,11 +201,11 @@ jobs:
 
   report:
     name: PR comment
-    # Runs after the other jobs even when they fail, so failures get reported.
-    # Dependabot's runs get a read-only token, so they can't comment.
+    # Always runs, so failures get reported; Dependabot's read-only token can't comment.
     if: always() && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     needs: [lint, format, typecheck, test, build]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       pull-requests: write
     steps:
@@ -214,8 +216,7 @@ jobs:
           merge-multiple: true
           path: summaries
       - name: Post or update the CI comment
-        # One comment per PR, found by its hidden marker and edited in place on later
-        # pushes, so the PR doesn't collect a comment per push.
+        # One comment per PR, found by its marker and edited in place on later pushes.
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
