@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { activityNotice, getActivity } from "@/lib/activity";
-import { respond } from "@/lib/fplapi/respond";
+import { respond } from "../../test/respond";
 
 beforeEach(() => vi.stubEnv("FPLAPI_URL", "https://api.example"));
 afterEach(() => {

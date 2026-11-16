@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { respond } from "@/lib/fplapi/respond";
+import { respond } from "../../test/respond";
 import {
   gameweekPath,
   getLatestGameweek,
