@@ -155,7 +155,7 @@ summary:focus-visible {
   top: 0;
   z-index: 2;
   padding: 0.5rem 1rem;
-  background: rgb(15 15 35 / 0.92);
+  background: color-mix(in srgb, var(--background) 92%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
@@ -545,7 +545,7 @@ summary:focus-visible {
   }
 
   .card:hover {
-    border-color: #3b3b58;
+    border-color: color-mix(in srgb, var(--raised), var(--secondary-text) 20%);
   }
 }
 

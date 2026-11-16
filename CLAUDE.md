@@ -2,7 +2,7 @@
 
 FPL Social's web app: league pages people share in group chats. Next.js App Router, TypeScript, on Vercel. It reads everything from **fplAPI** (separate repo), from the server.
 
-Rules for one area load from `.claude/rules/` when you open its files: `claude-md.md`, `workflows.md`. How-tos for people are in `README.md`; decisions and their history are in Linear (team FPL Social, project Web).
+Rules for one area load from `.claude/rules/` when you open its files: `claude-md.md`, `workflows.md`, `ui.md`. How-tos for people are in `README.md`; decisions and their history are in Linear (team FPL Social, project Web).
 
 ## Working guidelines
 
