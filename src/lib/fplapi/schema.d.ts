@@ -373,6 +373,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/leagues/{league_id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get League Activity
+         * @description Get what each team in a classic league did in a gameweek: real transfers, the
+         *     hit, chip and captain, by team id. Never managers' real names.
+         *
+         *     Read from what the hourly gameweek pass stored. The first request for a league
+         *     checks it with FPL and starts tracking it, answering pending with no teams until
+         *     the next pass. Returns 404 for an unknown league (head-to-head ones included) or
+         *     gameweek, or one whose deadline hasn't passed; 422 for a league with more than
+         *     50 teams; 429 when no more leagues can be tracked for now; 503 if FPL can't be
+         *     reached to check a new league.
+         */
+        get: operations["get_league_activity_api_leagues__league_id__activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me": {
         parameters: {
             query?: never;
@@ -507,6 +535,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActivityTransfer */
+        ActivityTransfer: {
+            /** Element In */
+            element_in: number;
+            /** Element Out */
+            element_out: number;
+        };
         /**
          * AutomaticSub
          * @description A bench player FPL brought on for a starter who didn't play.
@@ -788,6 +823,27 @@ export interface components {
             rank?: number | null;
             /** Last Rank */
             last_rank?: number | null;
+        };
+        /**
+         * LeagueActivityResponse
+         * @description What each team in a classic league did in a gameweek, by team id.
+         *
+         *     pending is true while the gameweek pass hasn't reached every team for this
+         *     gameweek, e.g. for a league requested for the first time; teams it has reached
+         *     are listed already.
+         */
+        LeagueActivityResponse: {
+            /** League Id */
+            league_id: number;
+            /** Event */
+            event: number;
+            /** Pending */
+            pending: boolean;
+            /**
+             * Teams
+             * @default []
+             */
+            teams: components["schemas"]["TeamActivity"][];
         };
         /**
          * LeagueStandingsResponse
@@ -1114,6 +1170,36 @@ export interface components {
             total?: number | null;
             /** Event Total */
             event_total?: number | null;
+        };
+        /**
+         * TeamActivity
+         * @description What one team did in a gameweek. Never the manager's real name.
+         */
+        TeamActivity: {
+            /** Entry */
+            entry: number;
+            /** Entry Name */
+            entry_name?: string | null;
+            /** Event */
+            event: number;
+            /**
+             * Transfers
+             * @default []
+             */
+            transfers: components["schemas"]["ActivityTransfer"][];
+            /**
+             * Transfers Cost
+             * @default 0
+             */
+            transfers_cost: number;
+            /** Chip */
+            chip?: string | null;
+            /** Captain */
+            captain?: number | null;
+            /** Vice Captain */
+            vice_captain?: number | null;
+            /** Captain Changed */
+            captain_changed?: boolean | null;
         };
         /**
          * TeamRequest
@@ -1713,6 +1799,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LeagueStandingsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_league_activity_api_leagues__league_id__activity_get: {
+        parameters: {
+            query?: {
+                /** @description The gameweek; by default the latest past its deadline */
+                event?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description The FPL classic league id */
+                league_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeagueActivityResponse"];
                 };
             };
             /** @description Validation Error */
