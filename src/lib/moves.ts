@@ -31,6 +31,12 @@ export function hitLabel(cost: number): string {
   return `−${cost} pts`;
 }
 
+// The league's size; the page shows the standings' first page, so a bigger one is "50+".
+export function teamCount(shown: number, more: boolean): string {
+  if (more) return `${shown}+ teams`;
+  return `${shown} team${shown === 1 ? "" : "s"}`;
+}
+
 export function pointsLabel(total: number | null): string {
   return total === null ? "New to the league" : `${total} pts`;
 }

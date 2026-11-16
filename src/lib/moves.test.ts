@@ -8,6 +8,7 @@ import {
   hitLabel,
   NOT_PLAYING,
   pointsLabel,
+  teamCount,
   type TeamActivity,
   transferCount,
 } from "@/lib/moves";
@@ -40,6 +41,14 @@ describe("wording", () => {
     [12, "12 transfers"],
   ])("counts %i transfers as %s", (count, text) => {
     expect(transferCount(count)).toBe(text);
+  });
+
+  it.each([
+    [1, false, "1 team"],
+    [23, false, "23 teams"],
+    [50, true, "50+ teams"],
+  ])("counts %i teams (more: %s) as %s", (shown, more, text) => {
+    expect(teamCount(shown, more)).toBe(text);
   });
 
   it("writes a hit with a minus sign", () => {

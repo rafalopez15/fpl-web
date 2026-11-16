@@ -12,6 +12,7 @@ import {
   hitLabel,
   NOT_PLAYING,
   pointsLabel,
+  teamCount,
   transferCount,
 } from "@/lib/moves";
 import { getPlayerNames } from "@/lib/players";
@@ -90,7 +91,7 @@ async function League({ params }: { params: Params }) {
         <div className="league-header">
           <div>
             <p className="muted small">
-              Mini-league · {cards.length} team{cards.length === 1 ? "" : "s"}
+              Mini-league · {teamCount(cards.length, league.has_next)}
             </p>
             <h1>{league.name}</h1>
           </div>

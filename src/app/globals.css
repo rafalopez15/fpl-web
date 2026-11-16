@@ -476,7 +476,8 @@ summary:focus-visible {
   width: 70%;
 }
 
-.bar.short {
+.bar.short,
+.card.placeholder .bar.short {
   width: 40%;
 }
 
