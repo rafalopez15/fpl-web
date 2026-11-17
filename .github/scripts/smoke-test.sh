@@ -34,7 +34,8 @@ check() {
   fi
 }
 
-# Every Next.js page loads assets from here; Vercel's error pages don't.
-check / "/_next/static/"
+# Every Next.js page loads assets from here; Vercel's error pages don't. Not /, which
+# redirects.
+check /leagues "/_next/static/"
 
 exit $failed
