@@ -130,7 +130,7 @@ function ClaimCard({ team }: { team: Team }) {
   return (
     <form action={linkTeam} className="confirm-card">
       <p className="label">{LINK.question}</p>
-      <input type="hidden" name="team" value={team.id} />
+      <input type="hidden" name="id" value={team.id} />
       <div className="confirm-actions">
         <button type="submit" className="button">
           {LINK.confirm}

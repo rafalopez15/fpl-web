@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { fplapi } from "@/lib/fplapi/client";
 import type { components } from "@/lib/fplapi/schema";
-import { parseLeagueId } from "@/lib/league-id";
+import { parseFplUrl, parseLeagueId } from "@/lib/league-id";
 import { FPL_DOWN, TEAM_NOT_FOUND } from "@/lib/states";
 
 // fplAPI's manager: the team name, never the manager's real name.
@@ -15,6 +15,15 @@ export function parseTeamId(raw: string | undefined): number | null {
 }
 
 // Where "Your team" goes: the saved team, or the link flow.
+// What someone types in "Manager ID": the number, or the FPL address the hint points
+// to, such as fantasy.premierleague.com/entry/1234567/event/9.
+export function parseTeamInput(input: string): number | null {
+  const text = input.trim();
+  if (/^\d+$/.test(text)) return parseTeamId(text);
+  const match = parseFplUrl(text)?.pathname.match(/^\/entry\/(\d+)(?:\/|$)/);
+  return match ? parseTeamId(match[1]) : null;
+}
+
 export function yourTeamPath(cookie: string | undefined): string {
   const id = parseTeamId(cookie);
   return id === null ? "/teams" : `/teams/${id}`;
@@ -123,11 +132,12 @@ export type LinkLookup =
   | { kind: "found"; id: number; name: string; summary: string }
   | { kind: "error"; message: string; warning: boolean };
 
-export const NOT_REACHED =
-  "Couldn't reach FPL. Check your connection and try again.";
+// fplAPI failing or unreachable from the server; the person's own connection
+// failing stops the server action before this.
+export const NOT_REACHED = "Couldn't reach FPL. Try again in a few minutes.";
 
 export async function lookUpTeam(input: string): Promise<LinkLookup> {
-  const id = parseTeamId(input.trim());
+  const id = parseTeamInput(input);
   // iOS treats an ID too big for fplAPI as no such team, too.
   if (id === null) {
     return { kind: "error", message: TEAM_NOT_FOUND.message, warning: false };

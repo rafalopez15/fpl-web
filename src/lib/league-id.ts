@@ -13,6 +13,17 @@ const FPL_HOSTS = new Set([
   "www.fantasy.premierleague.com",
 ]);
 
+// An address on the FPL site, with or without https://, or null for anything else.
+export function parseFplUrl(text: string): URL | null {
+  let url: URL;
+  try {
+    url = new URL(/^https?:\/\//i.test(text) ? text : `https://${text}`);
+  } catch {
+    return null;
+  }
+  return FPL_HOSTS.has(url.hostname) ? url : null;
+}
+
 export type LeagueInput =
   | { kind: "league"; id: number }
   | { kind: "head-to-head" }
@@ -25,13 +36,8 @@ export function parseLeagueInput(input: string): LeagueInput {
   const text = input.trim();
   if (/^\d+$/.test(text)) return league(parseLeagueId(text));
 
-  let url: URL;
-  try {
-    url = new URL(/^https?:\/\//i.test(text) ? text : `https://${text}`);
-  } catch {
-    return { kind: "invalid" };
-  }
-  if (!FPL_HOSTS.has(url.hostname)) return { kind: "invalid" };
+  const url = parseFplUrl(text);
+  if (!url) return { kind: "invalid" };
   const match = url.pathname.match(/^\/leagues\/(\d+)(?:\/|$)/);
   if (!match) return { kind: "invalid" };
   if (/^\/leagues\/\d+\/standings\/h(?:\/|$)/.test(url.pathname)) {

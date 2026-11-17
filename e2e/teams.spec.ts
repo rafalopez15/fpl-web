@@ -33,6 +33,10 @@ test("links a team by its ID, then unlinks it", async ({ page }) => {
     "FPL is down or updating",
   );
 
+  // The FPL address the hint points to works as well as the number.
+  await find(page, "https://fantasy.premierleague.com/entry/10/event/9");
+  await expect(main(page).getByText("Expected Toulouse")).toBeVisible();
+
   // "Not my team" starts over.
   await find(page, "10");
   await expect(main(page).getByText("Is this your team?")).toBeVisible();

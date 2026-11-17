@@ -6,6 +6,7 @@ import {
   lookUpTeam,
   NOT_REACHED,
   parseTeamId,
+  parseTeamInput,
   type Team,
   teamLabel,
   teamStats,
@@ -53,6 +54,23 @@ describe("parseTeamId", () => {
     [undefined, null],
   ])("reads %j as %s", (raw, id) => {
     expect(parseTeamId(raw)).toBe(id);
+  });
+});
+
+describe("parseTeamInput", () => {
+  it.each([
+    ["123456", 123456],
+    [" 123456 ", 123456],
+    ["https://fantasy.premierleague.com/entry/123456/event/9", 123456],
+    ["fantasy.premierleague.com/entry/123456/history", 123456],
+    ["www.fantasy.premierleague.com/entry/123456", 123456],
+    ["https://example.com/entry/123456/event/9", null],
+    ["fantasy.premierleague.com/leagues/314/standings/c", null],
+    ["fantasy.premierleague.com/entry/0/event/9", null],
+    ["https://", null],
+    ["abc", null],
+  ])("reads %j as %s", (input, id) => {
+    expect(parseTeamInput(input)).toBe(id);
   });
 });
 
@@ -161,6 +179,15 @@ describe("lookUpTeam", () => {
     });
   });
 
+  it("finds the team from its FPL address", async () => {
+    const fetch = respond(200, team);
+    await expect(
+      lookUpTeam("https://fantasy.premierleague.com/entry/123456/event/9"),
+    ).resolves.toMatchObject({ kind: "found", id: 123456 });
+    const request = fetch.mock.calls[0][0] as Request;
+    expect(request.url).toBe("https://api.example/api/managers/123456");
+  });
+
   it.each(["abc", "0", "99999999999"])(
     "says there's no such team for %j, without asking fplAPI",
     async (input) => {
@@ -190,6 +217,10 @@ describe("lookUpTeam", () => {
       message: FPL_DOWN,
       warning: true,
     });
+  });
+
+  it("says FPL couldn't be reached, not the person's connection", async () => {
+    expect(NOT_REACHED).toBe("Couldn't reach FPL. Try again in a few minutes.");
   });
 
   it("warns when fplAPI can't be reached", async () => {

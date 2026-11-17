@@ -2,12 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { LINK } from "@/lib/teams";
-import { findTeam, linkTeam } from "./actions";
+import { linkTeam, lookUpTeamAction } from "./actions";
 
-// A Client Component for the lookup's state; both steps also work before JavaScript
-// loads.
+// A Client Component for the lookup's state.
 export function LinkTeamForm() {
-  const [state, action, pending] = useActionState(findTeam, {});
+  const [state, action, pending] = useActionState(lookUpTeamAction, {});
   // Editing the ID after a lookup starts over, as on iOS.
   const [editedAfter, setEditedAfter] = useState<object | null>(null);
   const lookup = editedAfter === state ? undefined : state.lookup;
@@ -59,6 +58,7 @@ export function LinkTeamForm() {
             >
               {LINK.reject}
             </button>
+            <input type="hidden" name="id" value={found.id} />
             <button type="submit" formAction={linkTeam} className="button">
               {LINK.confirm}
             </button>
