@@ -1,6 +1,7 @@
 ---
 paths:
   - "src/app/**"
+  - "src/components/**"
   - "src/app/globals.css"
 ---
 
@@ -17,7 +18,14 @@ paths:
 
 - **Server Components by default.** A Client Component only for real interaction (`collapse.tsx`, `share-button.tsx`), as small as possible; server-rendered markup goes into it as `children`, as the transfer list does in `Collapsible`.
 - **Wording lives in `src/lib`** (`moves.ts`, `gameweeks.ts`) with tests, not in JSX: counts, labels, state text, deadlines.
-- Prefer HTML over state when it does the job (`hidden`, `<details>`).
+- Prefer HTML over state when it does the job (`hidden`, `<details>`, `popover`).
+- **Shared states** from `src/components/states.tsx`, not new markup: `LoadingState` (a `Suspense` fallback, never a root `loading.tsx`: bots lose their 404), `ErrorState` (in `error.tsx`), `MessageState` (not-found, placeholders, nothing to show). Their wording is in `src/lib/states.ts`, matching iOS.
+- **Every page sets its title and description** with `pageMetadata` from `src/lib/pages.ts`; the root layout adds " · FPL Social".
+
+## Layout
+
+- Content goes in `<main>` (`--page-width`, centred). One breakpoint for desktop: `@media (min-width: 640px)`.
+- The header scrolls away on phones, so a page's own sticky bar sits at `top: 0`, like the gameweek bar.
 
 ## Accessibility (FPL-145's quality bar)
 

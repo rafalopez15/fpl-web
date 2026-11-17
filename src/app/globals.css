@@ -19,8 +19,15 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Layout: phones first, with one breakpoint for desktop, @media (min-width: 640px).
+   Custom properties can't go in a media query, so every rule repeats that query. */
+:root {
+  --page-width: 47.5rem;
+}
+
+/* The page container: every page's content goes in <main>. */
 main {
-  max-width: 47.5rem;
+  max-width: var(--page-width);
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;
 }
