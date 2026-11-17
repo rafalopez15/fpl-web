@@ -4,12 +4,15 @@ import {
   ARRIVING,
   buildCards,
   chipLabel,
+  collapseAllLabel,
+  footerNote,
   gameweekTotals,
   hitLabel,
   NOT_PLAYING,
   pointsLabel,
   teamCount,
   type TeamActivity,
+  toggleLabel,
   transferCount,
 } from "@/lib/moves";
 
@@ -34,6 +37,29 @@ function team(overrides: Partial<TeamActivity> = {}): TeamActivity {
   };
 }
 
+// A league with this many standings and new entries; only the counts matter.
+function sized(standings: number, joined: number, more: boolean): League {
+  return {
+    id: 1,
+    name: "League",
+    page: 1,
+    has_next: more,
+    standings: Array.from({ length: standings }, (_, i) => ({
+      entry: i,
+      entry_name: `Team ${i}`,
+      rank: i + 1,
+      last_rank: i + 1,
+      total: 100,
+      event_total: 50,
+    })),
+    new_entries: Array.from({ length: joined }, (_, i) => ({
+      entry: 1000 + i,
+      entry_name: `New ${i}`,
+    })),
+    new_entries_has_next: false,
+  };
+}
+
 describe("wording", () => {
   it.each([
     [0, "No transfers"],
@@ -44,11 +70,30 @@ describe("wording", () => {
   });
 
   it.each([
-    [1, false, "1 team"],
-    [23, false, "23 teams"],
-    [50, true, "50+ teams"],
-  ])("counts %i teams (more: %s) as %s", (shown, more, text) => {
-    expect(teamCount(shown, more)).toBe(text);
+    [1, 0, false, "1 team"],
+    [20, 3, false, "23 teams"],
+    [50, 0, true, "50+ teams"],
+    // Teams that joined since don't add to a league with more pages.
+    [50, 3, true, "50+ teams"],
+  ])(
+    "counts %i standings and %i new teams (more: %s) as %s",
+    (standings, joined, more, text) => {
+      expect(teamCount(sized(standings, joined, more))).toBe(text);
+    },
+  );
+
+  it("says the page shows the top teams only when there are more", () => {
+    expect(footerNote(sized(23, 0, false))).toBe("Updated hourly by FPL");
+    expect(footerNote(sized(50, 3, true))).toBe(
+      "Top 50 teams · Updated hourly by FPL",
+    );
+  });
+
+  it("labels the collapse controls", () => {
+    expect(collapseAllLabel(false)).toBe("Collapse all");
+    expect(collapseAllLabel(true)).toBe("Expand all");
+    expect(toggleLabel(true, "VARiables")).toBe("Hide VARiables’s transfers");
+    expect(toggleLabel(false, "VARiables")).toBe("Show VARiables’s transfers");
   });
 
   it("writes a hit with a minus sign", () => {

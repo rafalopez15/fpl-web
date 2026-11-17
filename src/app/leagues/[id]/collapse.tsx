@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { collapseAllLabel, toggleLabel } from "@/lib/moves";
 import { ChevronDown } from "./icons";
 
 type Collapse = {
@@ -53,7 +54,7 @@ export function CollapseAllButton() {
   const { allClosed, toggleAll } = useCollapse();
   return (
     <button type="button" className="text-button" onClick={toggleAll}>
-      {allClosed ? "Expand all" : "Collapse all"}
+      {collapseAllLabel(allClosed)}
     </button>
   );
 }
@@ -75,7 +76,7 @@ export function CardToggle({
       className="icon-button card-toggle"
       aria-expanded={open}
       aria-controls={controls}
-      aria-label={`${open ? "Hide" : "Show"} ${teamName}’s transfers`}
+      aria-label={toggleLabel(open, teamName)}
       onClick={() => toggle(entry)}
     >
       <ChevronDown />

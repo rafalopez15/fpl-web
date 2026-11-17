@@ -31,11 +31,32 @@ export function hitLabel(cost: number): string {
   return `−${cost} pts`;
 }
 
-// The league's size; the page shows the standings' first page, so a bigger one is "50+".
-export function teamCount(shown: number, more: boolean): string {
-  if (more) return `${shown}+ teams`;
-  return `${shown} team${shown === 1 ? "" : "s"}`;
+// The league's size. The page shows the standings' first page, so a bigger league is
+// "50+", counting the standings only: teams that joined since may be on later pages.
+export function teamCount(league: League): string {
+  if (league.has_next) return `${league.standings.length}+ teams`;
+  const count = league.standings.length + league.new_entries.length;
+  return `${count} team${count === 1 ? "" : "s"}`;
 }
+
+export const STANDINGS_ORDER = "In standings order";
+
+export function footerNote(league: League): string {
+  const updated = "Updated hourly by FPL";
+  return league.has_next
+    ? `Top ${league.standings.length} teams · ${updated}`
+    : updated;
+}
+
+export function collapseAllLabel(allClosed: boolean): string {
+  return allClosed ? "Expand all" : "Collapse all";
+}
+
+export function toggleLabel(open: boolean, teamName: string): string {
+  return `${open ? "Hide" : "Show"} ${teamName}’s transfers`;
+}
+
+export const CAPTAIN = "Captain";
 
 export function pointsLabel(total: number | null): string {
   return total === null ? "New to the league" : `${total} pts`;

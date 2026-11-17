@@ -8,10 +8,13 @@ import { resolveLeaguePage } from "@/lib/league-page";
 import {
   ARRIVING,
   buildCards,
+  CAPTAIN,
   type Card,
+  footerNote,
   hitLabel,
   NOT_PLAYING,
   pointsLabel,
+  STANDINGS_ORDER,
   teamCount,
   transferCount,
 } from "@/lib/moves";
@@ -90,15 +93,13 @@ async function League({ params }: { params: Params }) {
       <main className="league">
         <div className="league-header">
           <div>
-            <p className="muted small">
-              Mini-league · {teamCount(cards.length, league.has_next)}
-            </p>
+            <p className="muted small">Mini-league · {teamCount(league)}</p>
             <h1>{league.name}</h1>
           </div>
           <ShareButton title={shareTitle(league.name, event)} />
         </div>
         <div className="list-controls">
-          <span className="muted small">In standings order</span>
+          <span className="muted small">{STANDINGS_ORDER}</span>
           {collapsible.length > 0 && <CollapseAllButton />}
         </div>
         {notice && <p className="notice">{notice}</p>}
@@ -107,9 +108,7 @@ async function League({ params }: { params: Params }) {
             <TeamCard key={card.entry} card={card} />
           ))}
         </ol>
-        <p className="muted small footer">
-          Top 50 teams · Updated hourly by FPL
-        </p>
+        <p className="muted small footer">{footerNote(league)}</p>
       </main>
     </CollapseProvider>
   );
@@ -195,9 +194,10 @@ function TeamCard({ card }: { card: Card }) {
           )}
           {card.captain && (
             <span className="pill captain">
-              <span className="captain-badge" aria-label="Captain">
+              <span className="captain-badge" aria-hidden="true">
                 C
               </span>
+              <span className="visually-hidden">{CAPTAIN}</span>
               <span>{card.captain}</span>
               {card.captainChanged && <span className="new">new</span>}
             </span>
