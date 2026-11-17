@@ -51,7 +51,9 @@ test("walks the navigation", async ({ page, context }) => {
   await page.getByRole("button", { name: "Open" }).click();
   await expect(page).toHaveURL("/leagues/5508");
   await expect(heading(page)).toHaveText("FPLDev");
-  await expect(page.getByText("VARiables")).toBeVisible();
+  // Scoped to the visible <main>: Next keeps visited pages, such as the team page,
+  // hidden in the DOM, and getByText matches hidden elements.
+  await expect(page.getByRole("main").getByText("VARiables")).toBeVisible();
   await expect(current(page)).toHaveText("Leagues");
 });
 

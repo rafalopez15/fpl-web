@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const heading = (page: Page) => page.getByRole("heading", { level: 1 });
+// Next keeps visited pages in the DOM, hidden, and getByText matches hidden elements.
+const main = (page: Page) => page.getByRole("main");
 const field = (page: Page) => page.getByLabel("Manager ID");
 
 async function navigate(page: Page, name: string) {
@@ -33,8 +35,8 @@ test("links a team by its ID, then unlinks it", async ({ page }) => {
 
   // "Not my team" starts over.
   await find(page, "10");
-  await expect(page.getByText("Is this your team?")).toBeVisible();
-  await expect(page.getByText("540 pts · Rank 2,004,118")).toBeVisible();
+  await expect(main(page).getByText("Is this your team?")).toBeVisible();
+  await expect(main(page).getByText("540 pts · Rank 2,004,118")).toBeVisible();
   await page.getByRole("button", { name: "Not my team" }).click();
   await expect(page.getByRole("button", { name: "Find team" })).toBeVisible();
 
@@ -42,7 +44,9 @@ test("links a team by its ID, then unlinks it", async ({ page }) => {
   await page.getByRole("button", { name: "Link team" }).click();
   await expect(page).toHaveURL("/teams/123456");
   await expect(heading(page)).toHaveText("VARiables");
-  await expect(page.getByText("Your FPL team", { exact: true })).toBeVisible();
+  await expect(
+    main(page).getByText("Your FPL team", { exact: true }),
+  ).toBeVisible();
 
   // Your team and / open it now.
   await page.goto("/");
@@ -70,10 +74,12 @@ test("makes someone else's team yours when none is linked", async ({
 }) => {
   await page.goto("/teams/10");
   await expect(heading(page)).toHaveText("Expected Toulouse");
-  await expect(page.getByText("FPL team", { exact: true })).toBeVisible();
+  await expect(main(page).getByText("FPL team", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Squad" })).toBeVisible();
   await page.getByRole("button", { name: "Link team" }).click();
-  await expect(page.getByText("Your FPL team", { exact: true })).toBeVisible();
+  await expect(
+    main(page).getByText("Your FPL team", { exact: true }),
+  ).toBeVisible();
   expect((await context.cookies()).find((c) => c.name === "team")?.value).toBe(
     "10",
   );
@@ -81,7 +87,7 @@ test("makes someone else's team yours when none is linked", async ({
   // With a team linked, another team's page doesn't offer it.
   await page.goto("/teams/123456");
   await expect(heading(page)).toHaveText("VARiables");
-  await expect(page.getByText("Is this your team?")).toHaveCount(0);
+  await expect(main(page).getByText("Is this your team?")).toHaveCount(0);
 });
 
 test("shows Team not found for a team FPL doesn't have", async ({

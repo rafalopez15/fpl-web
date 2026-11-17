@@ -64,16 +64,19 @@ async function TeamView({ params }: Pick<PageProps<"/teams/[id]">, "params">) {
   );
 }
 
+// Ids carry the team's: Next keeps visited pages in the DOM, hidden, so another team's
+// card may be there too.
 function TeamCard({ team, isYours }: { team: Team; isYours: boolean }) {
+  const titleId = `team-title-${team.id}`;
   return (
-    <section className="team-card" aria-labelledby="team-title">
+    <section className="team-card" aria-labelledby={titleId}>
       <div className="team-card-head">
         <div className="team-card-title">
           <p className="label">{teamLabel(isYours)}</p>
-          <h1 id="team-title">{team.name}</h1>
+          <h1 id={titleId}>{team.name}</h1>
           <p className="muted small">ID {team.id}</p>
         </div>
-        {isYours && <UnlinkButton teamName={team.name} />}
+        {isYours && <UnlinkButton team={team} />}
       </div>
       <dl className="team-stats">
         {teamStats(team).map((stat) => (
@@ -88,26 +91,27 @@ function TeamCard({ team, isYours }: { team: Team; isYours: boolean }) {
 }
 
 // Confirms in a popover first, as iOS does in a dialog.
-function UnlinkButton({ teamName }: { teamName: string }) {
+function UnlinkButton({ team }: { team: Team }) {
+  const id = `unlink-${team.id}`;
   return (
     <>
-      <button type="button" className="text-button" popoverTarget="unlink">
+      <button type="button" className="text-button" popoverTarget={id}>
         {UNLINK.button}
       </button>
       <div
-        id="unlink"
+        id={id}
         popover="auto"
         className="dialog"
         role="dialog"
-        aria-labelledby="unlink-title"
+        aria-labelledby={`${id}-title`}
       >
-        <h2 id="unlink-title">{unlinkTitle(teamName)}</h2>
+        <h2 id={`${id}-title`}>{unlinkTitle(team.name)}</h2>
         <p className="muted">{UNLINK.message}</p>
         <form action={unlinkTeam} className="dialog-actions">
           <button
             type="button"
             className="button secondary"
-            popoverTarget="unlink"
+            popoverTarget={id}
             popoverTargetAction="hide"
           >
             {UNLINK.cancel}
