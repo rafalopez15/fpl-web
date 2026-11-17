@@ -22,7 +22,11 @@ export function SiteNavFallback({ yourTeam }: Props) {
 function NavLinks({ yourTeam, pathname }: Props & { pathname: string | null }) {
   const menu = useRef<HTMLUListElement>(null);
   const close = () => {
-    if (menu.current?.matches(":popover-open")) menu.current.hidePopover();
+    const list = menu.current;
+    // matches() throws on :popover-open where popover isn't supported.
+    if (list && "popover" in list && list.matches(":popover-open")) {
+      list.hidePopover();
+    }
   };
 
   return (
