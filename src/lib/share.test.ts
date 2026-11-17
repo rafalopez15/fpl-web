@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { shareDescription, shareNameSize, shareTitle } from "@/lib/share";
+import type { ActivityResult } from "@/lib/activity";
+import type { TeamActivity } from "@/lib/moves";
+import {
+  shareButtonLabel,
+  shareDescription,
+  shareNameSize,
+  shareSubtitle,
+  shareTiles,
+  shareTitle,
+} from "@/lib/share";
 
 describe("shareTitle", () => {
   it("names the league and gameweek", () => {
@@ -38,5 +47,74 @@ describe("shareNameSize", () => {
 
   it("counts an emoji as one character", () => {
     expect(shareNameSize("⚽".repeat(16))).toBe(96);
+  });
+});
+
+describe("shareButtonLabel", () => {
+  it.each([
+    ["idle", "Share"],
+    ["copied", "Link copied"],
+    ["failed", "Couldn't copy the link"],
+  ] as const)("labels %s as %s", (status, label) => {
+    expect(shareButtonLabel(status)).toBe(label);
+  });
+});
+
+describe("shareSubtitle", () => {
+  it("says what the gameweek image shows, or that it's a mini-league", () => {
+    expect(shareSubtitle(11)).toBe("What everyone did this gameweek");
+    expect(shareSubtitle(null)).toBe("Mini-league");
+  });
+});
+
+describe("shareTiles", () => {
+  const team = (overrides: Partial<TeamActivity>): TeamActivity => ({
+    entry: 10,
+    entry_name: "Team A",
+    event: 11,
+    transfers: [],
+    transfers_cost: 0,
+    chip: null,
+    captain: 5,
+    vice_captain: 1,
+    captain_changed: false,
+    ...overrides,
+  });
+  const ok = (pending: boolean, teams: TeamActivity[]): ActivityResult => ({
+    kind: "ok",
+    activity: { league_id: 1, event: 11, pending, teams },
+  });
+  const done = [
+    team({
+      transfers: [{ element_in: 1, element_out: 2 }],
+      transfers_cost: 4,
+      chip: "wildcard",
+    }),
+  ];
+
+  it("shows the totals once every team is done", () => {
+    expect(shareTiles(ok(false, done))).toEqual([
+      { value: "1", label: "transfers", tone: "text" },
+      { value: "−4", label: "in hits", tone: "danger" },
+      { value: "1", label: "chips played", tone: "accent" },
+    ]);
+  });
+
+  it("writes no hits as 0", () => {
+    expect(shareTiles(ok(false, [team({})]))?.[1]).toEqual({
+      value: "0",
+      label: "in hits",
+      tone: "text",
+    });
+  });
+
+  it("leaves the tiles out while teams are pending", () => {
+    expect(shareTiles(ok(true, done))).toBeNull();
+  });
+
+  it("leaves the tiles out with no teams, no gameweek or no activity", () => {
+    expect(shareTiles(ok(false, []))).toBeNull();
+    expect(shareTiles(null)).toBeNull();
+    expect(shareTiles({ kind: "busy" })).toBeNull();
   });
 });
