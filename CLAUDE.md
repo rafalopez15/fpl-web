@@ -55,5 +55,6 @@ Run all of them before pushing: each is a required check.
 - Commit or push only when asked.
 - One branch per Linear story from an up-to-date `main`, named with the issue id (`fpl-68-repo-setup`). Never commit to a branch whose PR has merged.
 - Logical commits, each leaving the app working. Short imperative subject, then a body with what and why.
+- Open a standard PR, not a draft, once the local checks pass: it's ready for review from then.
 - PRs merge with a merge commit, never squash or rebase.
 - PR title `FPL-<n>: <what it does>`. Description: `Closes FPL-<n>.` or `Part of FPL-<n>.`, one or two sentences, `## Changes`, `## Testing` (say what wasn't checked). Plain sentences, no emoji or hype.

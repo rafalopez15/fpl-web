@@ -30,5 +30,10 @@ paths:
 
 ## Checking a change
 
-- Check the league page at 375px and 1280px, and the share image with a long league name.
-- Contrast: measure any new text and background pair; the theme's text colors pass on `--background`, `--surface` and `--raised`.
+Locally first, then the Vercel preview. Push only once the local checks pass, so the preview checks the deploy rather than basic behavior.
+
+- **Locally** (`npm run dev` with a stand-in fplAPI): the league page at 375px and 1280px, the share image with a long league name, and the cases production data rarely has: a pending league, a league over 50 teams, teams that joined later, no team done.
+- **Contrast:** measure any new text and background pair; the theme's text colors pass on `--background`, `--surface` and `--raised`.
+- **Wording gets a test, not a look.** Counts, labels and state text come from `src/lib`, so a wrong string fails `npm test` before anyone opens a browser.
+- **On the preview** (the PR's): only what local can't show. Fonts and assets bundled on Vercel, the share image as a link-preview bot fetches it, and real leagues at real sizes.
+- **Not checked:** say in the PR's Testing section which checks ran locally, which ran on the preview, and which didn't run.
