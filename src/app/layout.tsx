@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { theme, themeVariables } from "@/lib/theme";
 import "./globals.css";
 
@@ -15,7 +16,15 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" style={themeVariables()}>
-      <body>{children}</body>
+      <body>
+        {/* Room for menu items later; scrolls away under the gameweek bar. */}
+        <header className="brand-row">
+          <Link href="/" className="brand">
+            FPL Social
+          </Link>
+        </header>
+        {children}
+      </body>
     </html>
   );
 }

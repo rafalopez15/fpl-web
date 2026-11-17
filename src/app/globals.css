@@ -20,7 +20,7 @@ body {
 }
 
 main {
-  max-width: 40rem;
+  max-width: 47.5rem;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;
 }
@@ -40,13 +40,47 @@ a {
   color: var(--accent);
 }
 
+/* One visible focus style for every control, from the keyboard only. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .muted {
   color: var(--secondary-text);
+}
+
+.small {
+  font-size: 0.8125rem;
 }
 
 .error {
   color: var(--danger);
 }
+
+/* Header, on every page: full width, so the brand sits top left on desktop. */
+
+.brand-row {
+  padding: 0 1rem;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.0625rem;
+  text-decoration: none;
+  /* A 44px target around the text. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Home page */
 
 .league-form {
   margin-top: 2rem;
@@ -82,17 +116,12 @@ a {
   border: 1px solid var(--border);
 }
 
-.league-form input:focus-visible,
-.button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 .league-form input[aria-invalid="true"] {
   border-color: var(--danger);
 }
 
 .button {
+  min-height: 44px;
   background: var(--accent);
   color: var(--on-accent);
   border: none;
@@ -114,94 +143,428 @@ a {
 .notice {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 0.75rem 1rem;
-}
-
-.stepper {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  margin: 0.5rem 0 1rem;
-}
-
-.stepper a {
-  padding: 0.5rem 0;
-  text-decoration: none;
-}
-
-.stepper a[rel="next"] {
-  justify-self: end;
-}
-
-.stepper-current {
-  font-weight: 600;
-}
-
-.standings {
-  list-style: none;
   margin: 0;
-  padding: 0;
 }
 
-.standing {
-  display: grid;
-  grid-template-columns: 2.25rem 1fr;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
+/* League page */
+
+.gameweek-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 0.5rem 1rem;
+  background: color-mix(in srgb, var(--background) 92%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
 
-.standing p {
+.stepper {
+  max-width: 26rem;
+  min-height: 54px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 4px;
+}
+
+.stepper-current {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stepper-title {
+  font-weight: 600;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.icon-button.disabled {
+  color: var(--secondary-text);
+  opacity: 0.45;
+  cursor: default;
+}
+
+.league {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+}
+
+.league-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.league-header p {
+  margin: 0 0 0.25rem;
+}
+
+.league-header h1 {
+  font-size: 1.875rem;
+  line-height: 1.15;
   margin: 0;
 }
 
+.share-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  padding-inline: 1rem;
+}
+
+.list-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text-button {
+  min-height: 44px;
+  padding: 0 0.25rem;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  /* The chevron's 44px; cards without one keep the same height. */
+  min-height: 44px;
+}
+
 .rank {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--raised);
   color: var(--secondary-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-variant-numeric: tabular-nums;
 }
 
-.team {
-  font-weight: 600;
-  overflow-wrap: anywhere;
+.card-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.moves {
-  margin-top: 0.25rem;
-  font-size: 0.9375rem;
-  overflow-wrap: anywhere;
+.team-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chip {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.0625rem 0.5rem;
+  flex-shrink: 0;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: var(--your-row);
-  color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
   font-size: 0.75rem;
-  font-weight: 600;
-  vertical-align: 0.125rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.placeholder .bar {
+.card-toggle {
+  color: var(--secondary-text);
+}
+
+.chevron {
+  transition: transform 0.15s ease;
+}
+
+.card-toggle[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--raised);
+  white-space: nowrap;
+}
+
+.pill.hit {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.pill.captain {
+  padding-left: 4px;
+}
+
+.captain-badge {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--background);
+  font-size: 0.625rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.transfers {
+  list-style: none;
+  margin: 0;
+  padding: 0.625rem 0 0.125rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.transfer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+
+.transfer-in,
+.transfer-out {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.transfer-in span,
+.transfer-out span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transfer-in {
+  font-weight: 600;
+}
+
+.transfer-in svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.transfer-for {
+  color: var(--secondary-text);
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+.transfer-out {
+  color: var(--secondary-text);
+}
+
+.transfer-out svg {
+  flex-shrink: 0;
+}
+
+.card-state {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--secondary-text);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--warning);
+}
+
+/* Read by screen readers, not shown. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.footer {
+  margin: 0.25rem 0 0;
+}
+
+/* Loading placeholders, the same shapes as the real bar and cards. */
+
+.placeholder .bar,
+.league-header .bar {
   display: block;
   height: 0.875rem;
+  width: 12rem;
   border-radius: 4px;
   background: var(--surface);
-  margin: 0.25rem 0 0.5rem;
+  margin: 0.25rem 0;
 }
 
-.placeholder .bar.short {
-  width: 60%;
+.card.placeholder .bar {
+  background: var(--raised);
+  width: 70%;
 }
 
-.more summary {
-  color: var(--accent);
-  cursor: pointer;
-  padding: 0.25rem 0;
+.bar.short,
+.card.placeholder .bar.short {
+  width: 40%;
 }
 
-.more[open] summary {
-  color: var(--secondary-text);
+.league-header .bar.title {
+  height: 2.125rem;
+  width: 14rem;
+}
+
+.bar-pill {
+  width: 5.5rem;
+  height: 1.375rem;
+}
+
+/* Desktop: name and points on one line, a little more room. */
+@media (min-width: 640px) {
+  .gameweek-bar {
+    padding-block: 0.625rem;
+  }
+
+  .league {
+    padding: 2rem 2rem 4rem;
+    gap: 1rem;
+  }
+
+  .league-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .card {
+    padding: 0.875rem 0.875rem 0.875rem 1.125rem;
+  }
+
+  .card-title {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.625rem;
+  }
+
+  .card-title .small {
+    flex-shrink: 0;
+  }
+
+  .transfers {
+    max-width: 30rem;
+  }
+
+  .brand-row {
+    padding-inline: 2rem;
+  }
+}
+
+/* Hover feedback only where there's a pointer to hover with. */
+@media (hover: hover) {
+  .icon-button:not(.disabled):hover,
+  .share-button:hover {
+    background: var(--raised);
+  }
+
+  .text-button:hover {
+    text-decoration: underline;
+  }
+
+  .card {
+    transition: border-color 0.15s ease;
+  }
+
+  .card:hover {
+    border-color: color-mix(in srgb, var(--raised), var(--secondary-text) 20%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron,
+  .card {
+    transition: none;
+  }
 }

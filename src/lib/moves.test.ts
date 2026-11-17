@@ -2,17 +2,25 @@ import { describe, expect, it } from "vitest";
 import type { League } from "@/lib/leagues";
 import {
   ARRIVING,
-  buildRows,
+  buildCards,
   chipLabel,
-  describeMoves,
-  movesLine,
-  NO_MOVES,
+  collapseAllLabel,
+  footerNote,
+  gameweekTotals,
+  hitLabel,
   NOT_PLAYING,
-  SHOWN_TRANSFERS,
+  pointsLabel,
+  teamCount,
   type TeamActivity,
+  toggleLabel,
+  transferCount,
 } from "@/lib/moves";
 
 const names = { 1: "Isak", 2: "Watkins", 3: "Saka", 4: "Palmer", 5: "Haaland" };
+const swap = (element_in: number, element_out: number) => ({
+  element_in,
+  element_out,
+});
 
 function team(overrides: Partial<TeamActivity> = {}): TeamActivity {
   return {
@@ -29,70 +37,79 @@ function team(overrides: Partial<TeamActivity> = {}): TeamActivity {
   };
 }
 
-const swap = (element_in: number, element_out: number) => ({
-  element_in,
-  element_out,
-});
+// A league with this many standings and new entries; only the counts matter.
+function sized(standings: number, joined: number, more: boolean): League {
+  return {
+    id: 1,
+    name: "League",
+    page: 1,
+    has_next: more,
+    standings: Array.from({ length: standings }, (_, i) => ({
+      entry: i,
+      entry_name: `Team ${i}`,
+      rank: i + 1,
+      last_rank: i + 1,
+      total: 100,
+      event_total: 50,
+    })),
+    new_entries: Array.from({ length: joined }, (_, i) => ({
+      entry: 1000 + i,
+      entry_name: `New ${i}`,
+    })),
+    new_entries_has_next: false,
+  };
+}
 
-describe("describeMoves", () => {
-  it("describes transfers with a hit and a captain change", () => {
-    const moves = describeMoves(
-      team({
-        transfers: [swap(1, 2), swap(3, 4)],
-        transfers_cost: 4,
-        captain_changed: true,
-      }),
-      names,
+describe("wording", () => {
+  it.each([
+    [0, "No transfers"],
+    [1, "1 transfer"],
+    [12, "12 transfers"],
+  ])("counts %i transfers as %s", (count, text) => {
+    expect(transferCount(count)).toBe(text);
+  });
+
+  it.each([
+    [1, 0, false, "1 team"],
+    [20, 3, false, "23 teams"],
+    [50, 0, true, "50+ teams"],
+    // Teams that joined since don't add to a league with more pages.
+    [50, 3, true, "50+ teams"],
+  ])(
+    "counts %i standings and %i new teams (more: %s) as %s",
+    (standings, joined, more, text) => {
+      expect(teamCount(sized(standings, joined, more))).toBe(text);
+    },
+  );
+
+  it("says the page shows the top teams only when there are more", () => {
+    expect(footerNote(sized(23, 0, false))).toBe("Updated hourly by FPL");
+    expect(footerNote(sized(50, 3, true))).toBe(
+      "Top 50 teams · Updated hourly by FPL",
     );
-    expect(movesLine(moves)).toBe(
-      "2 transfers (−4): Isak in for Watkins, Saka in for Palmer · Captain: Haaland (changed)",
-    );
-    expect(moves.more).toEqual([]);
   });
 
-  it("says one transfer without a hit", () => {
-    const moves = describeMoves(team({ transfers: [swap(1, 2)] }), names);
-    expect(movesLine(moves)).toBe("1 transfer: Isak in for Watkins");
+  it("labels the collapse controls", () => {
+    expect(collapseAllLabel(false)).toBe("Collapse all");
+    expect(collapseAllLabel(true)).toBe("Expand all");
+    expect(toggleLabel(true, "VARiables")).toBe("Hide VARiables’s transfers");
+    expect(toggleLabel(false, "VARiables")).toBe("Show VARiables’s transfers");
   });
 
-  it(`lists ${SHOWN_TRANSFERS} transfers and keeps the rest for "and N more"`, () => {
-    const moves = describeMoves(
-      team({
-        transfers: [swap(1, 2), swap(3, 4), swap(5, 1), swap(2, 3), swap(4, 5)],
-        chip: "wildcard",
-      }),
-      names,
-    );
-    expect(moves.transfers).toBe(
-      "5 transfers: Isak in for Watkins, Saka in for Palmer, Haaland in for Isak",
-    );
-    expect(moves.more).toEqual([
-      "Watkins in for Saka",
-      "Palmer in for Haaland",
-    ]);
+  it("writes a hit with a minus sign", () => {
+    expect(hitLabel(4)).toBe("−4 pts");
   });
 
-  it("says only a captain change", () => {
-    const moves = describeMoves(team({ captain_changed: true }), names);
-    expect(movesLine(moves)).toBe("Captain: Haaland (changed)");
+  it("writes points, or that a team is new", () => {
+    expect(pointsLabel(712)).toBe("712 pts");
+    expect(pointsLabel(null)).toBe("New to the league");
   });
 
-  it("says nothing about the captain without an earlier gameweek to compare", () => {
-    const moves = describeMoves(team({ captain_changed: null }), names);
-    expect(moves).toEqual({ transfers: null, more: [], captain: null });
+  it("uses the decided wording for teams without moves", () => {
+    expect(ARRIVING).toBe("Moves arriving within the hour");
+    expect(NOT_PLAYING).toBe("Joined after this gameweek");
   });
 
-  it("is empty for a team that did nothing", () => {
-    expect(movesLine(describeMoves(team(), names))).toBe("");
-  });
-
-  it("names a player it doesn't know", () => {
-    const moves = describeMoves(team({ transfers: [swap(99, 2)] }), names);
-    expect(movesLine(moves)).toBe("1 transfer: Unknown player in for Watkins");
-  });
-});
-
-describe("chipLabel", () => {
   it.each([
     ["wildcard", "Wildcard"],
     ["freehit", "Free Hit"],
@@ -100,107 +117,145 @@ describe("chipLabel", () => {
     ["3xc", "Triple Captain"],
     ["manager", "Assistant Manager"],
     ["newchip", "newchip"],
-  ])("labels %s as %s", (chip, label) => {
+  ])("labels chip %s as %s", (chip, label) => {
     expect(chipLabel(chip)).toBe(label);
   });
 });
 
-describe("buildRows", () => {
+describe("buildCards", () => {
+  const standing = (entry: number, rank: number, total: number) => ({
+    entry,
+    entry_name: `Team ${entry}`,
+    rank,
+    last_rank: rank,
+    total,
+    event_total: 50,
+  });
   const league: League = {
     id: 5508,
     name: "FPLDev",
     page: 1,
     has_next: false,
     standings: [
-      {
-        entry: 10,
-        entry_name: "Team A",
-        rank: 1,
-        last_rank: 1,
-        total: 700,
-        event_total: 60,
-      },
-      {
-        entry: 20,
-        entry_name: "Team B",
-        rank: 2,
-        last_rank: 2,
-        total: 690,
-        event_total: 50,
-      },
-      {
-        entry: 30,
-        entry_name: "Team C",
-        rank: 3,
-        last_rank: 3,
-        total: 680,
-        event_total: 40,
-      },
+      standing(10, 1, 712),
+      standing(20, 2, 698),
+      standing(30, 3, 690),
     ],
-    new_entries: [{ entry: 40, entry_name: "Team D" }],
+    new_entries: [{ entry: 40, entry_name: "Team 40" }],
     new_entries_has_next: false,
   };
 
-  it("keeps the standings' order, then new entries without a rank", () => {
-    const rows = buildRows(league, { pending: false, teams: [] }, names);
-    expect(rows.map((r) => [r.rank, r.name])).toEqual([
-      [1, "Team A"],
-      [2, "Team B"],
-      [3, "Team C"],
-      [null, "Team D"],
+  it("keeps the standings' order with points, then new entries", () => {
+    const cards = buildCards(league, { pending: false, teams: [] }, names);
+    expect(cards.map((c) => [c.rank, c.name, c.points])).toEqual([
+      [1, "Team 10", 712],
+      [2, "Team 20", 698],
+      [3, "Team 30", 690],
+      [null, "Team 40", null],
     ]);
   });
 
-  it("shows moves, chips and teams that did nothing", () => {
-    const rows = buildRows(
+  it("gives a done team its transfers, hit, chip and captain", () => {
+    const [card] = buildCards(
       league,
       {
         pending: false,
         teams: [
-          team({ entry: 10, transfers: [{ element_in: 1, element_out: 2 }] }),
-          team({ entry: 20, chip: "bboost" }),
-          team({ entry: 30 }),
-          team({ entry: 40 }),
+          team({
+            entry: 10,
+            transfers: [swap(1, 2), swap(3, 4)],
+            transfers_cost: 4,
+            chip: "bboost",
+            captain_changed: true,
+          }),
         ],
       },
       names,
     );
-    expect(movesLine(rows[0].moves!)).toBe("1 transfer: Isak in for Watkins");
-    expect(rows[0]).toMatchObject({ chip: null, note: null });
-    expect(rows[1]).toMatchObject({
+    expect(card).toMatchObject({
+      state: "done",
       chip: "Bench Boost",
-      moves: null,
-      note: null,
+      transfers: [
+        { in: "Isak", out: "Watkins" },
+        { in: "Saka", out: "Palmer" },
+      ],
+      hit: 4,
+      captain: "Haaland",
+      captainChanged: true,
     });
-    expect(rows[2]).toMatchObject({ moves: null, note: NO_MOVES });
   });
 
-  it("says moves are arriving for teams missing while pending", () => {
-    const rows = buildRows(
+  it("always shows a done team's captain, even when unchanged", () => {
+    const [card] = buildCards(
       league,
-      { pending: true, teams: [team({ entry: 10 })] },
+      { pending: false, teams: [team()] },
       names,
     );
-    expect(rows[0].note).toBe(NO_MOVES);
-    expect(rows[1]).toMatchObject({ moves: null, note: ARRIVING });
+    expect(card).toMatchObject({
+      transfers: [],
+      captain: "Haaland",
+      captainChanged: false,
+    });
   });
 
-  it("says a team missing once nothing is pending joined later, not that it made no moves", () => {
-    const rows = buildRows(
+  it("doesn't call a captain new without an earlier gameweek", () => {
+    const [card] = buildCards(
       league,
-      { pending: false, teams: [team({ entry: 10 })] },
+      { pending: false, teams: [team({ captain_changed: null })] },
       names,
     );
-    expect(rows[3]).toMatchObject({ moves: null, note: NOT_PLAYING });
+    expect(card.captainChanged).toBe(false);
   });
 
-  it("shows the standings alone while no team is done yet", () => {
-    const rows = buildRows(league, { pending: true, teams: [] }, names);
-    expect(rows.every((r) => r.moves === null && r.note === null)).toBe(true);
+  it("names a player it doesn't know, and has no captain when FPL has none", () => {
+    const [card] = buildCards(
+      league,
+      {
+        pending: false,
+        teams: [team({ transfers: [swap(99, 2)], captain: null })],
+      },
+      names,
+    );
+    expect(card.transfers).toEqual([{ in: "Unknown player", out: "Watkins" }]);
+    expect(card.captain).toBeNull();
   });
 
-  it("shows the standings alone without activity", () => {
-    const rows = buildRows(league, null, names);
-    expect(rows.every((r) => r.moves === null && r.note === null)).toBe(true);
+  it("marks teams missing while pending, and teams that joined later", () => {
+    const pending = buildCards(
+      league,
+      { pending: true, teams: [team()] },
+      names,
+    );
+    expect(pending.map((c) => c.state)).toEqual([
+      "done",
+      "pending",
+      "pending",
+      "pending",
+    ]);
+    const done = buildCards(league, { pending: false, teams: [team()] }, names);
+    expect(done[3].state).toBe("joined-later");
+  });
+
+  it("shows the standings alone while no team is done, or without activity", () => {
+    for (const activity of [{ pending: true, teams: [] }, null]) {
+      const cards = buildCards(league, activity, names);
+      expect(cards.every((c) => c.state === "standings")).toBe(true);
+    }
+  });
+});
+
+describe("gameweekTotals", () => {
+  it("adds up transfers, hits and chips across the teams that are done", () => {
+    const totals = gameweekTotals([
+      team({ transfers: [swap(1, 2), swap(3, 4)], transfers_cost: 4 }),
+      team({ transfers: [swap(1, 2)], chip: "wildcard" }),
+      team({ chip: "3xc", transfers_cost: 8 }),
+      team(),
+    ]);
+    expect(totals).toEqual({ transfers: 3, hits: 12, chips: 2 });
+  });
+
+  it("is all zero with no team done", () => {
+    expect(gameweekTotals([])).toEqual({ transfers: 0, hits: 0, chips: 0 });
   });
 });
