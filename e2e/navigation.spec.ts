@@ -27,7 +27,7 @@ test("walks the navigation", async ({ page, context }) => {
 
   await navigate(page, "Your team");
   await expect(page).toHaveURL("/teams");
-  await expect(heading(page)).toHaveText("Link your team");
+  await expect(heading(page)).toHaveText("Link your FPL team");
   await expect(current(page)).toHaveText("Your team");
 
   // A saved team: / and Your team open it. The header is in the root layout, which
@@ -57,7 +57,7 @@ test("walks the navigation", async ({ page, context }) => {
 
 test("opens every page in the URL scheme", async ({ page }) => {
   for (const [path, title] of [
-    ["/teams/123456", "Team"],
+    ["/teams/123456", "VARiables"],
     ["/players", "Players"],
     ["/leagues", "See what your mini-league did this gameweek"],
     ["/leagues/5508/standings", "Standings"],

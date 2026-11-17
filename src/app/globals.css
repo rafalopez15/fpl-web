@@ -68,6 +68,21 @@ summary:focus-visible {
   color: var(--danger);
 }
 
+/* FPL's side or the connection's, which retrying may fix. */
+.warning {
+  color: var(--warning);
+}
+
+/* A small caps heading over a card, as on iOS. */
+.label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--secondary-text);
+}
+
 /* Header, on every page: full width, so the brand sits top left on desktop. */
 
 .brand-row {
@@ -139,6 +154,7 @@ summary:focus-visible {
 
 /* 16px stops iOS zooming into the field. */
 .league-form input,
+.link-form input,
 .button {
   font: inherit;
   font-size: 1rem;
@@ -146,15 +162,20 @@ summary:focus-visible {
   padding: 0.75rem;
 }
 
-.league-form input {
-  flex: 1;
-  min-width: 0;
+.league-form input,
+.link-form input {
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
 }
 
-.league-form input[aria-invalid="true"] {
+.league-form input {
+  flex: 1;
+  min-width: 0;
+}
+
+.league-form input[aria-invalid="true"],
+.link-form input[aria-invalid="true"] {
   border-color: var(--danger);
 }
 
@@ -166,6 +187,16 @@ summary:focus-visible {
   font-weight: 600;
   padding-inline: 1.25rem;
   cursor: pointer;
+}
+
+.button.secondary {
+  background: var(--raised);
+  color: var(--text);
+}
+
+.button.danger {
+  background: var(--danger);
+  color: var(--on-accent);
 }
 
 .button:disabled {
@@ -540,6 +571,136 @@ summary:focus-visible {
 .bar-pill {
   width: 5.5rem;
   height: 1.375rem;
+}
+
+/* Team page and the link flow */
+
+.link-form {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 28rem;
+}
+
+.link-form label {
+  font-weight: 600;
+}
+
+.link-form input {
+  font-variant-numeric: tabular-nums;
+}
+
+.link-form p {
+  margin: 0 0 0.5rem;
+}
+
+.confirm-card,
+.team-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.confirm-card {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.confirm-card p {
+  margin: 0;
+}
+
+.confirm-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.confirm-actions,
+.dialog-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.confirm-actions .button,
+.dialog-actions .button {
+  flex: 1;
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.team-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.team-card-title {
+  min-width: 0;
+}
+
+.team-card-head .text-button {
+  flex-shrink: 0;
+}
+
+.team-card-title h1 {
+  margin: 0.125rem 0 0;
+}
+
+.team-card-title p {
+  margin: 0;
+}
+
+.team-stats {
+  margin: 0;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.team-stats dd {
+  margin: 0.125rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.placeholder-section h2 {
+  font-size: 1.125rem;
+  margin: 0.5rem 0 0;
+}
+
+.placeholder-section p {
+  margin: 0.25rem 0 0;
+}
+
+.dialog {
+  width: min(24rem, calc(100% - 2rem));
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+
+.dialog::backdrop {
+  background: color-mix(in srgb, var(--background) 70%, transparent);
+}
+
+.dialog h2 {
+  font-size: 1.125rem;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 /* Desktop: name and points on one line, a little more room. */

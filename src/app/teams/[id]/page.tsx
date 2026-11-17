@@ -1,26 +1,137 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Suspense } from "react";
-import { LoadingState, MessageState } from "@/components/states";
-import { PAGES, pageMetadata } from "@/lib/pages";
-import { COMING_SOON } from "@/lib/states";
-import { parseTeamId } from "@/lib/teams";
+import { LoadingState } from "@/components/states";
+import { PAGES, SITE_NAME } from "@/lib/pages";
+import {
+  findTeam,
+  LINK,
+  parseTeamId,
+  PLACEHOLDERS,
+  type Team,
+  teamLabel,
+  teamStats,
+  UNLINK,
+  unlinkTitle,
+} from "@/lib/teams";
+import { TEAM_COOKIE } from "@/lib/your-team";
+import { linkTeam, unlinkTeam } from "../actions";
 
-// Link-preview bots wait for metadata, so this gives them a 404 for a mistyped id.
-export async function generateMetadata({ params }: PageProps<"/teams/[id]">) {
-  if (parseTeamId((await params).id) === null) notFound();
-  return pageMetadata("team");
+// Link-preview bots wait for metadata, so this gives them a 404 for a team that
+// doesn't exist. The team name only: managers' names never leave fplAPI.
+export async function generateMetadata({
+  params,
+}: PageProps<"/teams/[id]">): Promise<Metadata> {
+  const team = await findTeam((await params).id);
+  const description = PAGES.team.description;
+  return {
+    title: team.name,
+    description,
+    openGraph: {
+      title: team.name,
+      description,
+      siteName: SITE_NAME,
+      type: "website",
+    },
+  };
 }
 
-// Any team, not only yours. A placeholder for now.
+// Any team, not only yours: it opens from a link, signed out and with no team linked.
 export default function TeamPage({ params }: PageProps<"/teams/[id]">) {
   return (
     <Suspense fallback={<LoadingState />}>
-      <Team params={params} />
+      <TeamView params={params} />
     </Suspense>
   );
 }
 
-async function Team({ params }: Pick<PageProps<"/teams/[id]">, "params">) {
-  if (parseTeamId((await params).id) === null) notFound();
-  return <MessageState title={PAGES.team.title} message={COMING_SOON} />;
+async function TeamView({ params }: Pick<PageProps<"/teams/[id]">, "params">) {
+  const team = await findTeam((await params).id);
+  const linked = parseTeamId((await cookies()).get(TEAM_COOKIE)?.value);
+  const isYours = linked === team.id;
+
+  return (
+    <main className="team">
+      <TeamCard team={team} isYours={isYours} />
+      {linked === null && <ClaimCard team={team} />}
+      {PLACEHOLDERS.map((p) => (
+        <section key={p.title} className="placeholder-section">
+          <h2>{p.title}</h2>
+          <p className="muted">{p.message}</p>
+        </section>
+      ))}
+    </main>
+  );
+}
+
+function TeamCard({ team, isYours }: { team: Team; isYours: boolean }) {
+  return (
+    <section className="team-card" aria-labelledby="team-title">
+      <div className="team-card-head">
+        <div className="team-card-title">
+          <p className="label">{teamLabel(isYours)}</p>
+          <h1 id="team-title">{team.name}</h1>
+          <p className="muted small">ID {team.id}</p>
+        </div>
+        {isYours && <UnlinkButton teamName={team.name} />}
+      </div>
+      <dl className="team-stats">
+        {teamStats(team).map((stat) => (
+          <div key={stat.label}>
+            <dt className="muted small">{stat.label}</dt>
+            <dd>{stat.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+// Confirms in a popover first, as iOS does in a dialog.
+function UnlinkButton({ teamName }: { teamName: string }) {
+  return (
+    <>
+      <button type="button" className="text-button" popoverTarget="unlink">
+        {UNLINK.button}
+      </button>
+      <div
+        id="unlink"
+        popover="auto"
+        className="dialog"
+        role="dialog"
+        aria-labelledby="unlink-title"
+      >
+        <h2 id="unlink-title">{unlinkTitle(teamName)}</h2>
+        <p className="muted">{UNLINK.message}</p>
+        <form action={unlinkTeam} className="dialog-actions">
+          <button
+            type="button"
+            className="button secondary"
+            popoverTarget="unlink"
+            popoverTargetAction="hide"
+          >
+            {UNLINK.cancel}
+          </button>
+          <button type="submit" className="button danger">
+            {UNLINK.button}
+          </button>
+        </form>
+      </div>
+    </>
+  );
+}
+
+// With no team linked, a way to make this one yours.
+function ClaimCard({ team }: { team: Team }) {
+  return (
+    <form action={linkTeam} className="confirm-card">
+      <p className="label">{LINK.question}</p>
+      <input type="hidden" name="team" value={team.id} />
+      <div className="confirm-actions">
+        <button type="submit" className="button">
+          {LINK.confirm}
+        </button>
+      </div>
+    </form>
+  );
 }

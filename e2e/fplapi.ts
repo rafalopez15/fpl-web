@@ -83,6 +83,20 @@ function activity(event: number): Schemas["LeagueActivityResponse"] {
   };
 }
 
+// 123456 is the team the navigation test saves; 503 is a team FPL can't answer for.
+const managers: Schemas["ManagerResponse"][] = [
+  [123456, "VARiables", 563, 1_571_477, 71],
+  [10, "Expected Toulouse", 540, 2_004_118, 58],
+].map(([id, name, points, rank, event]) => ({
+  id: id as number,
+  name: name as string,
+  current_event: 2,
+  summary_overall_points: points as number,
+  summary_overall_rank: rank as number,
+  summary_event_points: event as number,
+  leagues: [],
+}));
+
 function route(path: string, query: URLSearchParams): [number, unknown] {
   if (path === "/api/events") return [200, events];
   if (path === "/api/elements") return [200, elements];
@@ -92,6 +106,13 @@ function route(path: string, query: URLSearchParams): [number, unknown] {
     return events.some((e) => e.id === event && e.id <= 2)
       ? [200, activity(event)]
       : [404, { detail: "Gameweek not found" }];
+  }
+  const manager = path.match(/^\/api\/managers\/(\d+)$/);
+  if (manager) {
+    const found = managers.find((m) => m.id === Number(manager[1]));
+    if (found) return [200, found];
+    if (manager[1] === "503") return [503, { detail: "FPL is unavailable" }];
+    return [404, { detail: "Manager not found" }];
   }
   if (path.startsWith("/api/leagues/")) {
     return [404, { detail: "League not found" }];
