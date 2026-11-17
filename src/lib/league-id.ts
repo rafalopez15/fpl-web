@@ -13,7 +13,7 @@ const FPL_HOSTS = new Set([
   "www.fantasy.premierleague.com",
 ]);
 
-// An address on the FPL site, with or without https://, or null for anything else.
+// With or without https://.
 export function parseFplUrl(text: string): URL | null {
   let url: URL;
   try {

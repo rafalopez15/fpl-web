@@ -4,7 +4,6 @@ import { useActionState, useState } from "react";
 import { LINK } from "@/lib/teams";
 import { linkTeam, lookUpTeamAction } from "./actions";
 
-// A Client Component for the lookup's state.
 export function LinkTeamForm() {
   const [state, action, pending] = useActionState(lookUpTeamAction, {});
   // Editing the ID after a lookup starts over, as on iOS.

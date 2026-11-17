@@ -83,7 +83,7 @@ function activity(event: number): Schemas["LeagueActivityResponse"] {
   };
 }
 
-// 123456 is the team the navigation test saves; 503 is a team FPL can't answer for.
+// The navigation test saves 123456; ID 503 stands in for FPL being down.
 const managers: Schemas["ManagerResponse"][] = [
   [123456, "VARiables", 563, 1_571_477, 71],
   [10, "Expected Toulouse", 540, 2_004_118, 58],

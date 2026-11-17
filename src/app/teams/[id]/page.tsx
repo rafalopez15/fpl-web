@@ -17,8 +17,7 @@ import {
 import { TEAM_COOKIE } from "@/lib/your-team";
 import { linkTeam, unlinkTeam } from "../actions";
 
-// Link-preview bots wait for metadata, so this gives them a 404 for a team that
-// doesn't exist. The team name only: managers' names never leave fplAPI.
+// Bots wait for metadata, so a missing team gets them a 404.
 export async function generateMetadata({
   params,
 }: PageProps<"/teams/[id]">): Promise<Metadata> {
@@ -36,7 +35,7 @@ export async function generateMetadata({
   };
 }
 
-// Any team, not only yours: it opens from a link, signed out and with no team linked.
+// Any team, so links to it can be shared.
 export default function TeamPage({ params }: PageProps<"/teams/[id]">) {
   return (
     <Suspense fallback={<LoadingState />}>
@@ -64,8 +63,7 @@ async function TeamView({ params }: Pick<PageProps<"/teams/[id]">, "params">) {
   );
 }
 
-// Ids carry the team's: Next keeps visited pages in the DOM, hidden, so another team's
-// card may be there too.
+// Ids include the team id: Next keeps visited team pages hidden in the DOM.
 function TeamCard({ team, isYours }: { team: Team; isYours: boolean }) {
   const titleId = `team-title-${team.id}`;
   return (
@@ -90,7 +88,7 @@ function TeamCard({ team, isYours }: { team: Team; isYours: boolean }) {
   );
 }
 
-// Confirms in a popover first, as iOS does in a dialog.
+// Asks first, as iOS does.
 function UnlinkButton({ team }: { team: Team }) {
   const id = `unlink-${team.id}`;
   return (
@@ -125,7 +123,6 @@ function UnlinkButton({ team }: { team: Team }) {
   );
 }
 
-// With no team linked, a way to make this one yours.
 function ClaimCard({ team }: { team: Team }) {
   return (
     <form action={linkTeam} className="confirm-card">

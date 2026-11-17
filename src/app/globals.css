@@ -68,12 +68,12 @@ summary:focus-visible {
   color: var(--danger);
 }
 
-/* FPL's side or the connection's, which retrying may fix. */
+/* An error that retrying may fix. */
 .warning {
   color: var(--warning);
 }
 
-/* A small caps heading over a card, as on iOS. */
+/* Caps label over a card, as on iOS. */
 .label {
   margin: 0;
   font-size: 0.75rem;

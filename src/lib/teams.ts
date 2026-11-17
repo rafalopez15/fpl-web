@@ -5,7 +5,7 @@ import type { components } from "@/lib/fplapi/schema";
 import { parseFplUrl, parseLeagueId } from "@/lib/league-id";
 import { FPL_DOWN, TEAM_NOT_FOUND } from "@/lib/states";
 
-// fplAPI's manager: the team name, never the manager's real name.
+// fplAPI calls a team a manager.
 export type Team = components["schemas"]["ManagerResponse"];
 
 // A team id from a URL segment or the cookie, or null when it can't be one. FPL ids
@@ -15,8 +15,7 @@ export function parseTeamId(raw: string | undefined): number | null {
 }
 
 // Where "Your team" goes: the saved team, or the link flow.
-// What someone types in "Manager ID": the number, or the FPL address the hint points
-// to, such as fantasy.premierleague.com/entry/1234567/event/9.
+// The number, or the FPL address the hint shows (/entry/<id>/…).
 export function parseTeamInput(input: string): number | null {
   const text = input.trim();
   if (/^\d+$/.test(text)) return parseTeamId(text);
@@ -34,8 +33,7 @@ export type TeamResult =
   | { kind: "not-found" }
   | { kind: "fpl-unavailable" };
 
-// fplAPI answers 503 when FPL is down and it has no saved copy. Neither 404 nor 503
-// is in the spec, hence the status checks.
+// 503 is FPL down. Neither status is in the spec, hence the checks.
 export async function getTeam(id: number): Promise<TeamResult> {
   const { data, response } = await fplapi().GET("/api/managers/{manager_id}", {
     params: { path: { manager_id: id } },
@@ -47,9 +45,7 @@ export async function getTeam(id: number): Promise<TeamResult> {
   return { kind: "ok", team: data };
 }
 
-// The team for a route's [id], fetched once per request for the page and its metadata.
-// notFound() for an id that isn't one or a team FPL doesn't have; FPL being down
-// throws, for error.tsx.
+// Once per request, for the page and its metadata.
 export const findTeam = cache(async (rawId: string): Promise<Team> => {
   const id = parseTeamId(rawId);
   if (id === null) notFound();
@@ -61,8 +57,7 @@ export const findTeam = cache(async (rawId: string): Promise<Team> => {
 
 const number = new Intl.NumberFormat("en-GB");
 
-// e.g. "563 pts · Rank 1,571,477", or "ID 1" for a team with neither yet. As iOS's
-// "Is this your team?" card.
+// "563 pts · Rank 1,571,477", or "ID 1" before either exists.
 export function teamSummary(team: Team): string {
   const parts: string[] = [];
   if (team.summary_overall_points != null) {
@@ -74,8 +69,7 @@ export function teamSummary(team: Team): string {
   return parts.length ? parts.join(" · ") : `ID ${team.id}`;
 }
 
-// The team card's numbers, as on iOS Profile. A dash for what FPL hasn't got yet,
-// such as the rank before a new team's first gameweek.
+// A dash for what FPL hasn't got yet, e.g. a new team's rank.
 export function teamStats(team: Team): { label: string; value: string }[] {
   const value = (n: number | null | undefined) =>
     n == null ? "–" : number.format(n);
@@ -89,7 +83,6 @@ export function teamStats(team: Team): { label: string; value: string }[] {
   ];
 }
 
-// The team card's label: whose team it is.
 export function teamLabel(isYours: boolean): string {
   return isYours ? "Your FPL team" : "FPL team";
 }
@@ -126,14 +119,12 @@ export const PLACEHOLDERS = [
   { title: "Transfers", message: "This team's transfers are coming soon." },
 ];
 
-// What the link form shows after an ID is entered: the team to confirm, or why not.
-// A warning is FPL's side, which retrying may fix; an error is the ID, which won't.
+// A warning is FPL's side, which retrying may fix; an error is the ID.
 export type LinkLookup =
   | { kind: "found"; id: number; name: string; summary: string }
   | { kind: "error"; message: string; warning: boolean };
 
-// fplAPI failing or unreachable from the server; the person's own connection
-// failing stops the server action before this.
+// The server failing to reach fplAPI, not the person being offline.
 export const NOT_REACHED = "Couldn't reach FPL. Try again in a few minutes.";
 
 export async function lookUpTeam(input: string): Promise<LinkLookup> {

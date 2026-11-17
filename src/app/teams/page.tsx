@@ -4,7 +4,7 @@ import { LinkTeamForm } from "./link-team-form";
 
 export const metadata = pageMetadata("linkTeam");
 
-// Where "Your team" goes before a team is linked. Linking another replaces it.
+// Where Your team goes with no team linked.
 export default function Page() {
   return (
     <main className="link-team">

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const heading = (page: Page) => page.getByRole("heading", { level: 1 });
-// Next keeps visited pages in the DOM, hidden, and getByText matches hidden elements.
+// Next keeps visited pages hidden in the DOM, and getByText would match them.
 const main = (page: Page) => page.getByRole("main");
 const field = (page: Page) => page.getByLabel("Manager ID");
 
@@ -33,7 +33,7 @@ test("links a team by its ID, then unlinks it", async ({ page }) => {
     "FPL is down or updating",
   );
 
-  // The FPL address the hint points to works as well as the number.
+  // A pasted FPL address works too.
   await find(page, "https://fantasy.premierleague.com/entry/10/event/9");
   await expect(main(page).getByText("Expected Toulouse")).toBeVisible();
 
