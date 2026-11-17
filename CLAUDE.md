@@ -21,6 +21,7 @@ npm run format         # Prettier; CI runs format:check
 npm run typecheck      # generates route types, then tsc
 npm test               # Vitest; test:coverage applies the 80% gate on src/lib
 npm run build          # what Vercel runs; catches errors dev mode lets through
+npm run e2e            # Playwright against a build and the stand-in fplAPI in e2e/
 ```
 
 Run all of them before pushing: each is a required check.

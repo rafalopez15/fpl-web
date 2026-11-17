@@ -15,6 +15,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
     "generate:api": "openapi-typescript ${FPLAPI_URL:-https://fpl-api-six.vercel.app}/openapi.json -o src/lib/fplapi/schema.d.ts"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.1",
     "@types/node": "26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
