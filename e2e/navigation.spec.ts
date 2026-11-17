@@ -15,10 +15,10 @@ const current = (page: Page) =>
   page.getByRole("navigation", { name: "Main" }).locator("[aria-current=page]");
 
 test("walks the navigation", async ({ page, context }) => {
-  // No team saved: Your team is the link flow.
+  // No team saved: / is the league form, and Your team the link flow.
   await page.goto("/");
-  await expect(page).toHaveURL("/teams");
-  await expect(heading(page)).toHaveText("Link your team");
+  await expect(page).toHaveURL("/leagues");
+  await expect(current(page)).toHaveText("Leagues");
 
   await navigate(page, "Players");
   await expect(page).toHaveURL("/players");
@@ -27,24 +27,32 @@ test("walks the navigation", async ({ page, context }) => {
 
   await navigate(page, "Your team");
   await expect(page).toHaveURL("/teams");
+  await expect(heading(page)).toHaveText("Link your team");
   await expect(current(page)).toHaveText("Your team");
 
-  // A saved team: Your team opens it. The link flow will set the cookie in a server
-  // action, which clears the router's cached redirect; here a reload does that.
+  // A saved team: / and Your team open it. The header is in the root layout, which
+  // client navigation doesn't re-render, so it picks up the cookie on the next load;
+  // a server action that sets it refreshes the page too.
   await context.addCookies([
     { name: "team", value: "123456", url: page.url() },
   ]);
   await page.reload();
+  // The server's link replaces the header shell's fallback as the page streams in.
+  await expect(page.locator('a.nav-link[href="/teams"]')).toHaveCount(0);
   await navigate(page, "Your team");
+  await expect(page).toHaveURL("/teams/123456");
+  await page.goto("/");
   await expect(page).toHaveURL("/teams/123456");
 
   // A league from the form, with the stand-in fplAPI's data.
-  await page.goto("/leagues");
+  await navigate(page, "Leagues");
+  await expect(page).toHaveURL("/leagues");
   await page.getByLabel("Your mini-league").fill("5508");
   await page.getByRole("button", { name: "Open" }).click();
   await expect(page).toHaveURL("/leagues/5508");
   await expect(heading(page)).toHaveText("FPLDev");
   await expect(page.getByText("VARiables")).toBeVisible();
+  await expect(current(page)).toHaveText("Leagues");
 });
 
 test("opens every page in the URL scheme", async ({ page }) => {

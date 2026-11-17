@@ -6,10 +6,10 @@ const saved = (value: string) =>
   value.match(new RegExp(`^${TEAM_ID_PATTERN}$`))?.groups?.team ?? null;
 
 describe("homeRedirects", () => {
-  it("opens the saved team first, then the link flow", () => {
+  it("opens the saved team, else the league form", () => {
     expect(homeRedirects.map((r) => [r.source, r.destination])).toEqual([
       ["/", "/teams/:team"],
-      ["/", "/teams"],
+      ["/", "/leagues"],
     ]);
     expect(homeRedirects.every((r) => r.permanent === false)).toBe(true);
   });

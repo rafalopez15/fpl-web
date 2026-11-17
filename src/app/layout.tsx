@@ -4,7 +4,8 @@ import { Suspense } from "react";
 import { SITE_NAME } from "@/lib/pages";
 import { theme, themeVariables } from "@/lib/theme";
 import "./globals.css";
-import { SiteNav, SiteNavFallback } from "./site-nav";
+import { HeaderNav } from "./header-nav";
+import { SiteNavFallback } from "./site-nav";
 
 export const metadata: Metadata = {
   title: { template: `%s · ${SITE_NAME}`, default: SITE_NAME },
@@ -25,8 +26,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Link href="/" className="brand">
             {SITE_NAME}
           </Link>
-          <Suspense fallback={<SiteNavFallback />}>
-            <SiteNav />
+          <Suspense fallback={<SiteNavFallback yourTeam="/teams" />}>
+            <HeaderNav />
           </Suspense>
         </header>
         {children}
