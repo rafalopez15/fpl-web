@@ -15,15 +15,21 @@ trap 'rm -f "$body"' EXIT
 
 # Retries cover a cold start and a deployment whose alias is still settling. No
 # --location: Vercel's login page, where a protected deployment redirects, is Next.js too.
+# Prints the status and, for a redirect, where it points.
 fetch() {
   curl --silent --show-error --retry 3 --retry-delay 5 --retry-all-errors \
-    --max-time 20 --output "$body" --write-out '%{http_code}' "$base$1"
+    --max-time 20 --output "$body" --write-out '%{http_code} %{redirect_url}' "$base$1"
 }
 
 failed=0
 check() {
-  local path=$1 text=$2 status
-  status=$(fetch "$path")
+  local path=$1 text=$2 status location
+  read -r status location <<<"$(fetch "$path")"
+  # Follows one redirect within the deployment (/ to /leagues), never to another host.
+  if [[ $status == 30[1278] && $location == "$base"/* ]]; then
+    path="$path → ${location#"$base"}"
+    read -r status location <<<"$(fetch "${location#"$base"}")"
+  fi
   if [ "$status" = 200 ] && grep -q "$text" "$body"; then
     echo "ok    $path"
   else
