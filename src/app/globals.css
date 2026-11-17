@@ -61,6 +61,25 @@ summary:focus-visible {
   color: var(--danger);
 }
 
+/* Header, on every page: full width, so the brand sits top left on desktop. */
+
+.brand-row {
+  padding: 0 1rem;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.0625rem;
+  text-decoration: none;
+  /* A 44px target around the text. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
 /* Home page */
 
 .league-form {
@@ -130,25 +149,6 @@ summary:focus-visible {
 }
 
 /* League page */
-
-.brand-row {
-  max-width: 47.5rem;
-  margin: 0 auto;
-  padding: 0 1rem;
-  min-height: 3.5rem;
-  display: flex;
-  align-items: center;
-}
-
-.brand {
-  font-weight: 700;
-  font-size: 1.0625rem;
-  text-decoration: none;
-  /* A 44px target around the text. */
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
 
 .gameweek-bar {
   position: sticky;

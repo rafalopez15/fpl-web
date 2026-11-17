@@ -47,17 +47,9 @@ export async function leagueMetadata(params: Params): Promise<Metadata> {
 
 export function LeagueView({ params }: { params: Params }) {
   return (
-    <>
-      {/* Room for menu items later; scrolls away under the gameweek bar. */}
-      <header className="brand-row">
-        <Link href="/" className="brand">
-          FPL Social
-        </Link>
-      </header>
-      <Suspense fallback={<Loading />}>
-        <League params={params} />
-      </Suspense>
-    </>
+    <Suspense fallback={<Loading />}>
+      <League params={params} />
+    </Suspense>
   );
 }
 
