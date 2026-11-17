@@ -18,6 +18,7 @@ import {
   teamCount,
   transferCount,
 } from "@/lib/moves";
+import { SITE_NAME } from "@/lib/pages";
 import { getPlayerNames } from "@/lib/players";
 import { shareDescription, shareTitle } from "@/lib/share";
 import {
@@ -46,7 +47,7 @@ export async function leagueMetadata(params: Params): Promise<Metadata> {
     // Already names the site where it needs to; see shareTitle.
     title: { absolute: title },
     description,
-    openGraph: { title, description, siteName: "FPL Social", type: "website" },
+    openGraph: { title, description, siteName: SITE_NAME, type: "website" },
     twitter: { card: "summary_large_image", title, description },
   };
 }
