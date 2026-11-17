@@ -5,7 +5,7 @@ import { LEAGUE_NOT_FOUND, OTHER_LEAGUE } from "@/lib/states";
 export default function LeagueNotFound() {
   return (
     <MessageState {...LEAGUE_NOT_FOUND}>
-      <Link href="/">{OTHER_LEAGUE}</Link>
+      <Link href="/leagues">{OTHER_LEAGUE}</Link>
     </MessageState>
   );
 }

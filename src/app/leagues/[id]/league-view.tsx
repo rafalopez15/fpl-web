@@ -38,7 +38,8 @@ export async function leagueMetadata(params: Params): Promise<Metadata> {
   const title = shareTitle(page.league.name, page.event);
   const description = shareDescription(page.league.name, page.event);
   return {
-    title,
+    // Already names the site where it needs to; see shareTitle.
+    title: { absolute: title },
     description,
     openGraph: { title, description, siteName: "FPL Social", type: "website" },
     twitter: { card: "summary_large_image", title, description },

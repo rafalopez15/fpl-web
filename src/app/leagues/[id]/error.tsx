@@ -8,7 +8,7 @@ import { OTHER_LEAGUE } from "@/lib/states";
 export default function LeagueError({ retry }: { retry: () => void }) {
   return (
     <ErrorState what="this league" retry={retry}>
-      <Link href="/">{OTHER_LEAGUE}</Link>
+      <Link href="/leagues">{OTHER_LEAGUE}</Link>
     </ErrorState>
   );
 }
