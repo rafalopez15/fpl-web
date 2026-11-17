@@ -87,3 +87,17 @@ test("gives link-preview bots a 404 for a league that doesn't exist", async ({
   });
   expect(response.status()).toBe(404);
 });
+
+test("shows Team not found for an id that can't be one", async ({ page }) => {
+  await page.goto("/teams/abc");
+  await expect(heading(page)).toHaveText("Team not found");
+});
+
+test("gives link-preview bots a 404 for a team id that can't be one", async ({
+  request,
+}) => {
+  const response = await request.get("/teams/abc", {
+    headers: { "User-Agent": "WhatsApp/2.23" },
+  });
+  expect(response.status()).toBe(404);
+});
