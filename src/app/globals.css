@@ -68,6 +68,8 @@ summary:focus-visible {
   min-height: 3.5rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .brand {
@@ -80,7 +82,36 @@ summary:focus-visible {
   align-items: center;
 }
 
-/* Home page */
+/* Navigation: on phones a popover under the menu button, inline from 640px. */
+
+.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0.375rem;
+  min-width: 12rem;
+  inset: 3.25rem 1rem auto auto;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.nav-link {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.875rem;
+  border-radius: 10px;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nav-link[aria-current="page"] {
+  color: var(--accent);
+}
+
+/* League form */
 
 .league-form {
   margin-top: 2rem;
@@ -540,12 +571,31 @@ summary:focus-visible {
   .brand-row {
     padding-inline: 2rem;
   }
+
+  .menu-button {
+    display: none;
+  }
+
+  /* Overrides the popover's own styles, which would hide it while closed. */
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    position: static;
+    padding: 0;
+    min-width: 0;
+    background: none;
+    border: none;
+  }
 }
 
 /* Hover feedback only where there's a pointer to hover with. */
 @media (hover: hover) {
   .icon-button:not(.disabled):hover,
   .share-button:hover {
+    background: var(--raised);
+  }
+
+  .nav-link:hover {
     background: var(--raised);
   }
 

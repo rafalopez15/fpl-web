@@ -26,7 +26,12 @@ import {
   CollapseAllButton,
   CollapseProvider,
 } from "./collapse";
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight } from "./icons";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+} from "@/components/icons";
 import { ShareButton } from "./share-button";
 
 // Shared by /leagues/[id] (the latest gameweek) and /leagues/[id]/gameweeks/[event].
