@@ -64,3 +64,9 @@ export const ArrowDown = (p: IconProps) => (
     <path d="M19 12l-7 7-7-7" />
   </Icon>
 );
+
+export const MenuIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </Icon>
+);

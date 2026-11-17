@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { collapseAllLabel, toggleLabel } from "@/lib/moves";
-import { ChevronDown } from "./icons";
+import { ChevronDown } from "@/components/icons";
 
 type Collapse = {
   isOpen: (entry: number) => boolean;

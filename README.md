@@ -49,22 +49,25 @@ A daily workflow (`api-client.yml`) regenerates it from production's spec and op
 
 ## Commands
 
-| Command                 | What it does                                         |
-| ----------------------- | ---------------------------------------------------- |
-| `npm run dev`           | Dev server with hot reload                           |
-| `npm run lint`          | ESLint; fails on any warning                         |
-| `npm run format`        | Formats every file with Prettier                     |
-| `npm run format:check`  | Checks formatting without changing files, as CI does |
-| `npm run typecheck`     | Generates Next's route types, then runs `tsc`        |
-| `npm test`              | Runs the Vitest tests                                |
-| `npm run test:coverage` | Tests with coverage; fails under 80% on `src/lib`    |
-| `npm run build`         | Production build, as Vercel runs it                  |
-| `npm start`             | Serves the production build locally                  |
-| `npm run generate:api`  | Regenerates the fplAPI client from production's spec |
+| Command                 | What it does                                           |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run dev`           | Dev server with hot reload                             |
+| `npm run lint`          | ESLint; fails on any warning                           |
+| `npm run format`        | Formats every file with Prettier                       |
+| `npm run format:check`  | Checks formatting without changing files, as CI does   |
+| `npm run typecheck`     | Generates Next's route types, then runs `tsc`          |
+| `npm test`              | Runs the Vitest tests                                  |
+| `npm run test:coverage` | Tests with coverage; fails under 80% on `src/lib`      |
+| `npm run build`         | Production build, as Vercel runs it                    |
+| `npm run e2e`           | Playwright tests against a build and a stand-in fplAPI |
+| `npm start`             | Serves the production build locally                    |
+| `npm run generate:api`  | Regenerates the fplAPI client from production's spec   |
 
 ## Checks on every PR
 
-CI (`.github/workflows/ci.yml`) runs Lint, Format, Type check, Tests and Build, and posts one comment on the PR with the results, updated on each push. Gitleaks scans the history for secrets. After Vercel deploys the preview, the smoke test requests it and posts a **Smoke test** status. All of these are required before a PR can merge.
+CI (`.github/workflows/ci.yml`) runs Lint, Format, Type check, Tests, Build and End-to-end tests, and posts one comment on the PR with the results, updated on each push. Gitleaks scans the history for secrets. After Vercel deploys the preview, the smoke test requests it and posts a **Smoke test** status. All of these are required before a PR can merge.
+
+The end-to-end tests (`e2e/`) build the app and run it against `e2e/fplapi.ts`, a stand-in fplAPI with fixed data, since the app calls fplAPI from its server where the browser can't mock it. The first time, install the browser with `npx playwright install chromium`. To check pages by hand against the same data, run `node e2e/fplapi.ts` and `FPLAPI_URL=http://localhost:4010 npm run dev`.
 
 To run the smoke test against any URL: Actions → Smoke test → Run workflow, or locally `.github/scripts/smoke-test.sh <url>`.
 

@@ -18,6 +18,7 @@ import {
   teamCount,
   transferCount,
 } from "@/lib/moves";
+import { SITE_NAME } from "@/lib/pages";
 import { getPlayerNames } from "@/lib/players";
 import { shareDescription, shareTitle } from "@/lib/share";
 import {
@@ -26,7 +27,12 @@ import {
   CollapseAllButton,
   CollapseProvider,
 } from "./collapse";
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight } from "./icons";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+} from "@/components/icons";
 import { ShareButton } from "./share-button";
 
 // Shared by /leagues/[id] (the latest gameweek) and /leagues/[id]/gameweeks/[event].
@@ -38,9 +44,10 @@ export async function leagueMetadata(params: Params): Promise<Metadata> {
   const title = shareTitle(page.league.name, page.event);
   const description = shareDescription(page.league.name, page.event);
   return {
-    title,
+    // Already names the site where it needs to; see shareTitle.
+    title: { absolute: title },
     description,
-    openGraph: { title, description, siteName: "FPL Social", type: "website" },
+    openGraph: { title, description, siteName: SITE_NAME, type: "website" },
     twitter: { card: "summary_large_image", title, description },
   };
 }

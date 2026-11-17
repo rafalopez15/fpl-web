@@ -1,20 +1,14 @@
 "use client"; // Error boundaries must be Client Components.
 
 import Link from "next/link";
+import { ErrorState } from "@/components/states";
+import { OTHER_LEAGUE } from "@/lib/states";
 
-// fplAPI failing, timing out or unreachable. A league fplAPI doesn't know is
-// not-found.tsx instead.
+// A league fplAPI doesn't know is not-found.tsx instead.
 export default function LeagueError({ retry }: { retry: () => void }) {
   return (
-    <main>
-      <h1>Couldn&apos;t load this league</h1>
-      <p className="muted">Something went wrong reaching FPL. Try again.</p>
-      <p className="actions">
-        <button type="button" className="button" onClick={() => retry()}>
-          Retry
-        </button>
-        <Link href="/">Try another league</Link>
-      </p>
-    </main>
+    <ErrorState what="this league" retry={retry}>
+      <Link href="/leagues">{OTHER_LEAGUE}</Link>
+    </ErrorState>
   );
 }

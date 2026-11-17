@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { shareButtonLabel, type ShareStatus } from "@/lib/share";
-import { ShareIcon } from "./icons";
+import { ShareIcon } from "@/components/icons";
 
 // The system share sheet where there is one (phones), else copies the link.
 export function ShareButton({ title }: { title: string }) {
