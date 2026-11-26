@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { ArrowDown, ArrowUp } from "@/components/icons";
 import { findLeague } from "@/lib/leagues";
 import { teamCount } from "@/lib/moves";
-import { PAGES, SITE_NAME } from "@/lib/pages";
+import { pageMetadata } from "@/lib/pages";
 import {
   capNote,
   JOINED_TITLE,
@@ -27,13 +27,7 @@ export async function generateMetadata({
   params,
 }: PageProps<"/leagues/[id]/standings">): Promise<Metadata> {
   const league = await findLeague((await params).id);
-  const title = standingsTitle(league.name);
-  const description = PAGES.standings.description;
-  return {
-    title,
-    description,
-    openGraph: { title, description, siteName: SITE_NAME, type: "website" },
-  };
+  return pageMetadata("standings", standingsTitle(league.name));
 }
 
 // Always the latest standings, so no gameweek stepper.
@@ -161,11 +155,22 @@ function Loading() {
         </div>
       </div>
       <div className="view-switch placeholder" aria-hidden="true" />
-      <div className="standings placeholder" aria-hidden="true">
-        {Array.from({ length: 10 }, (_, i) => (
-          <span key={i} className="bar" />
-        ))}
-      </div>
+      <table className="standings placeholder" aria-hidden="true">
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 10 }, (_, i) => (
+            <tr key={i}>
+              <td>
+                <span className="bar" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </main>
   );
 }

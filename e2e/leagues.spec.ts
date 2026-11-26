@@ -45,9 +45,13 @@ test("shows the standings, with teams that joined apart", async ({ page }) => {
   await expect(joined).toContainText("Ranked after FPL's next update.");
 });
 
-test("opens a team's page from its row", async ({ page }) => {
+test("opens a team's page from anywhere in its row", async ({ page }) => {
   await page.goto("/leagues/5508/standings");
-  await main(page).getByRole("link", { name: "Expected Toulouse" }).click();
+  await main(page)
+    .getByRole("row", { name: /Expected Toulouse/ })
+    .getByRole("cell", { name: "120" })
+    // The team link covers the row, so Playwright sees it intercept the cell's click.
+    .click({ force: true });
   await expect(page).toHaveURL("/teams/10");
   await expect(heading(page)).toHaveText("Expected Toulouse");
 });

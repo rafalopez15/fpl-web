@@ -430,15 +430,9 @@ summary:focus-visible {
   font-weight: 600;
 }
 
-.standings.placeholder {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1rem;
-}
-
 .standings.placeholder .bar {
   display: block;
+  width: 70%;
   height: 0.875rem;
   border-radius: 4px;
   background: var(--raised);

@@ -22,4 +22,12 @@ describe("pages", () => {
       },
     });
   });
+
+  it("takes a record's own title", () => {
+    expect(pageMetadata("standings", "FPLDev standings")).toMatchObject({
+      title: "FPLDev standings",
+      description: "A mini-league's standings.",
+      openGraph: { title: "FPLDev standings" },
+    });
+  });
 });
