@@ -36,9 +36,13 @@ export type PageKey = keyof typeof PAGES;
 
 export const SITE_NAME = "FPL Social";
 
-// A page's title and description, for browsers and for link previews.
-export function pageMetadata(key: PageKey): Metadata {
-  const { title, description } = PAGES[key];
+// A page's title and description, for browsers and for link previews. A page for
+// one record passes its own title, such as the league's name.
+export function pageMetadata(
+  key: PageKey,
+  title: string = PAGES[key].title,
+): Metadata {
+  const { description } = PAGES[key];
   return {
     title,
     description,

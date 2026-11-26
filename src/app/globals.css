@@ -310,6 +310,172 @@ summary:focus-visible {
   padding-inline: 1rem;
 }
 
+.view-switch {
+  display: flex;
+  min-height: 44px;
+  padding: 3px;
+  gap: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.view-switch a {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  color: var(--secondary-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.view-switch a[aria-current="page"] {
+  background: var(--raised);
+  color: var(--text);
+}
+
+.view-switch.placeholder {
+  min-height: 52px;
+}
+
+/* Standings */
+
+.standings {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  /* Rounds the rows' corners too. */
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+
+.standings th {
+  padding: 0.625rem 0.5rem;
+  color: var(--secondary-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.standings abbr {
+  text-decoration: none;
+}
+
+.standings td {
+  height: 44px;
+  padding: 0 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.standings th:first-child,
+.standings td:first-child {
+  padding-left: 1rem;
+}
+
+.standings th:last-child,
+.standings td:last-child {
+  padding-right: 1rem;
+}
+
+/* The whole row opens the team, not just its name. */
+.standings tbody tr {
+  position: relative;
+}
+
+.standing-team a {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.standing-team a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.standing-rank {
+  width: 4.5rem;
+  white-space: nowrap;
+  color: var(--secondary-text);
+  font-size: 0.875rem;
+}
+
+.standing-rank svg {
+  margin-right: 0.25rem;
+  vertical-align: -2px;
+}
+
+.rank-up {
+  color: var(--accent);
+}
+
+.rank-down {
+  color: var(--danger);
+}
+
+.standings .standing-points {
+  width: 3.25rem;
+  text-align: right;
+}
+
+.standing-total {
+  font-weight: 600;
+}
+
+.standings.placeholder .bar {
+  display: block;
+  width: 70%;
+  height: 0.875rem;
+  border-radius: 4px;
+  background: var(--raised);
+}
+
+.joined {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.joined h2 {
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.joined p {
+  margin: 0;
+}
+
+.joined-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.joined-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.joined-list a {
+  display: block;
+  padding: 0 1rem;
+  line-height: 44px;
+  color: var(--text);
+  text-decoration: none;
+}
+
 .list-controls {
   display: flex;
   align-items: center;
@@ -763,7 +929,10 @@ summary:focus-visible {
     background: var(--raised);
   }
 
-  .nav-link:hover {
+  .nav-link:hover,
+  .view-switch a:not([aria-current="page"]):hover,
+  .standings tbody tr:hover,
+  .joined-list li:hover {
     background: var(--raised);
   }
 
