@@ -61,6 +61,11 @@ describe("activityNotice", () => {
   it.each([
     ["no gameweek yet", null, "The season hasn't started yet."],
     [
+      "a league over 50 teams",
+      { kind: "too-big" as const },
+      "Leagues up to 50 teams for now.",
+    ],
+    [
       "too many new leagues",
       { kind: "busy" as const },
       "Lots of leagues are being added right now. Try again in a few minutes.",
@@ -76,7 +81,6 @@ describe("activityNotice", () => {
 
   it.each([
     ["moves to show", ok(false, 3)],
-    ["a league over 50 teams", { kind: "too-big" as const }],
     ["some teams still arriving", ok(true, 3)],
   ])("is quiet with %s", (_, result) => {
     expect(activityNotice(result)).toBeNull();

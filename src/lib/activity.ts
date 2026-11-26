@@ -38,9 +38,9 @@ export const getActivity = cache(
 
 // The message above the standings when there are no moves to show for the league,
 // or null when there are. A null result means no gameweek has passed its deadline.
-// Over 50 teams says nothing: the footer's "Top 50 teams" already does.
 export function activityNotice(result: ActivityResult | null): string | null {
   if (result === null) return "The season hasn't started yet.";
+  if (result.kind === "too-big") return "Leagues up to 50 teams for now.";
   if (result.kind === "busy") {
     return "Lots of leagues are being added right now. Try again in a few minutes.";
   }
