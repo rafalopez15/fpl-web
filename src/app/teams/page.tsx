@@ -1,10 +1,16 @@
-import { MessageState } from "@/components/states";
-import { PAGES, pageMetadata } from "@/lib/pages";
-import { COMING_SOON } from "@/lib/states";
+import { pageMetadata } from "@/lib/pages";
+import { LINK } from "@/lib/teams";
+import { LinkTeamForm } from "./link-team-form";
 
 export const metadata = pageMetadata("linkTeam");
 
-// The link flow, a placeholder for now.
+// Where Your team goes with no team linked.
 export default function Page() {
-  return <MessageState title={PAGES.linkTeam.title} message={COMING_SOON} />;
+  return (
+    <main className="link-team">
+      <h1>{LINK.title}</h1>
+      <p className="muted">{LINK.blurb}</p>
+      <LinkTeamForm />
+    </main>
+  );
 }
