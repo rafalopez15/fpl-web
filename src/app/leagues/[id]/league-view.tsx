@@ -34,6 +34,7 @@ import {
   ChevronRight,
 } from "@/components/icons";
 import { ShareButton } from "./share-button";
+import { ViewSwitch } from "./view-switch";
 
 // Shared by /leagues/[id] (the latest gameweek) and /leagues/[id]/gameweeks/[event].
 type Params = Promise<{ id: string; event?: string }>;
@@ -97,6 +98,7 @@ async function League({ params }: { params: Params }) {
           </div>
           <ShareButton title={shareTitle(league.name, event)} />
         </div>
+        <ViewSwitch leagueId={league.id} current="moves" />
         <div className="list-controls">
           <span className="muted small">{STANDINGS_ORDER}</span>
           {collapsible.length > 0 && <CollapseAllButton />}
@@ -251,6 +253,7 @@ function Loading() {
             <span className="bar title" />
           </div>
         </div>
+        <div className="view-switch placeholder" aria-hidden="true" />
         <ol className="cards" aria-hidden="true">
           {Array.from({ length: 8 }, (_, i) => (
             <li key={i} className="card placeholder">

@@ -61,7 +61,7 @@ test("opens every page in the URL scheme", async ({ page }) => {
     ["/teams/123456", "VARiables"],
     ["/players", "Players"],
     ["/leagues", "See what your mini-league did this gameweek"],
-    ["/leagues/5508/standings", "Standings"],
+    ["/leagues/5508/standings", "FPLDev"],
     ["/gameweek", "Gameweek"],
     ["/notes", "Notes"],
     ["/following", "Following"],

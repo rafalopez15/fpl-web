@@ -36,24 +36,35 @@ const elements: Schemas["ElementResponse"][] = [
   status: "a",
 }));
 
-const league: Schemas["LeagueStandingsResponse"] = {
-  id: LEAGUE_ID,
-  name: "FPLDev",
-  page: 1,
-  has_next: false,
-  standings: [
-    {
-      entry: 10,
-      entry_name: "VARiables",
-      rank: 1,
-      total: 140,
-      event_total: 70,
-    },
-    { entry: 20, entry_name: "Expected Toulouse", rank: 2, total: 120 },
-  ],
-  new_entries: [],
-  new_entries_has_next: false,
-};
+// Entries are the managers below, so standings rows open real team pages.
+function league(): Schemas["LeagueStandingsResponse"] {
+  return {
+    id: LEAGUE_ID,
+    name: "FPLDev",
+    last_updated: new Date(Date.now() - 5 * 60_000).toISOString(),
+    page: 1,
+    has_next: false,
+    standings: [
+      {
+        entry: 123456,
+        entry_name: "VARiables",
+        rank: 1,
+        last_rank: 2,
+        total: 140,
+        event_total: 70,
+      },
+      {
+        entry: 10,
+        entry_name: "Expected Toulouse",
+        rank: 2,
+        last_rank: 1,
+        total: 120,
+      },
+    ],
+    new_entries: [{ entry: 30, entry_name: "Late Arrivals" }],
+    new_entries_has_next: false,
+  };
+}
 
 function activity(event: number): Schemas["LeagueActivityResponse"] {
   return {
@@ -62,7 +73,7 @@ function activity(event: number): Schemas["LeagueActivityResponse"] {
     pending: false,
     teams: [
       {
-        entry: 10,
+        entry: 123456,
         event,
         transfers: [{ element_in: 2, element_out: 3 }],
         transfers_cost: 4,
@@ -71,7 +82,7 @@ function activity(event: number): Schemas["LeagueActivityResponse"] {
         captain_changed: false,
       },
       {
-        entry: 20,
+        entry: 10,
         event,
         transfers: [],
         transfers_cost: 0,
@@ -100,7 +111,7 @@ const managers: Schemas["ManagerResponse"][] = [
 function route(path: string, query: URLSearchParams): [number, unknown] {
   if (path === "/api/events") return [200, events];
   if (path === "/api/elements") return [200, elements];
-  if (path === `/api/leagues/${LEAGUE_ID}`) return [200, league];
+  if (path === `/api/leagues/${LEAGUE_ID}`) return [200, league()];
   if (path === `/api/leagues/${LEAGUE_ID}/activity`) {
     const event = Number(query.get("event"));
     return events.some((e) => e.id === event && e.id <= 2)
